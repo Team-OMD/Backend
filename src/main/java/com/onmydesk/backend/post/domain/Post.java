@@ -3,10 +3,14 @@ package com.onmydesk.backend.post.domain;
 import com.onmydesk.backend.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @Builder
+@Where(clause = "is_deleted = false")
+@SQLDelete(sql = "UPDATE post SET is_deleted = true WHERE id=?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Post extends BaseEntity {
