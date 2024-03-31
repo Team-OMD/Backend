@@ -1,0 +1,34 @@
+package com.onmydesk.backend.post.exception;
+
+import com.onmydesk.backend.global.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RequiredArgsConstructor
+@RestControllerAdvice
+public class PostExceptionHandler {
+
+    private final ApiResponse apiResponse;
+
+    // 게시글을 찾을 수 없는 경우의 예외 처리
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<?> handlePostNotFoundException(PostNotFoundException e) {
+        return apiResponse.fail(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    // 게시글 업데이트 중 발생한 예외 처리
+    @ExceptionHandler(PostUpdateException.class)
+    public ResponseEntity<?> handlePostUpdateException(PostUpdateException e) {
+        return apiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    // 기타 예외 처리
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception e) {
+        return apiResponse.error("서버 내부 오류", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+}
