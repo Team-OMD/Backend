@@ -2,6 +2,8 @@ package com.onmydesk.backend.post.service;
 
 import com.onmydesk.backend.post.domain.Post;
 import com.onmydesk.backend.post.dto.PostRequest;
+import com.onmydesk.backend.post.exception.PostNotFoundException;
+import com.onmydesk.backend.post.exception.PostUpdateException;
 import com.onmydesk.backend.post.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,16 +29,20 @@ public class PostService {
 
     // 게시글 단일 조회
     public Post find(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다."));
-        return post;
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
     }
 
+    // 게시글 업데이트
     @Transactional
     public Post update(Long postId, PostRequest request) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다."));
-        post.update(request.getTitle(), request.getContent());
+                .orElseThrow(() -> new PostNotFoundException(postId));
+        try {
+            post.update(request.getTitle(), request.getContent());
+        } catch (Exception e) {
+            throw new PostUpdateException(postId);
+        }
         return post;
     }
 
