@@ -1,14 +1,44 @@
 spring:
+
+  h2:
+    console:
+      enabled: true
+
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+      url:  jdbc:h2:tcp://localhost/~/test
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
   jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    properties:
+      database-platform: org.hibernate.dialect.H2Dialect
       hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+        ddl-auto: create-drop
+      properties:
+        hibernate:
+          show_sql: true
+          default_batch_fetch_size: 100
+          format_sql: true
+      defer-datasource-initialization: true
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        dialect: org.hibernate.dialect.MySQLDialect
+
+logging:
+  level:
+    org.hibernate.SQL: TRACE # SQL 로그 레벨을 INFO로 조정
+    org.hibernate.type: TRACE # 바인딩된 파라미터에 대한 자세한 로깅을 위해
+
+jwt:
+  header: Authorization
+  secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
+  token-validity-in-seconds: 86400
+
+
