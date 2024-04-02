@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 public class MemberUpdateRequest {
     @NotBlank
     private String name;
+
     @NotBlank
     private String nickname;
+
 }
 
