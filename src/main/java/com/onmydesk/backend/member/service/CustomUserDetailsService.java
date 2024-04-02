@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
-
     public CustomUserDetailsService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
