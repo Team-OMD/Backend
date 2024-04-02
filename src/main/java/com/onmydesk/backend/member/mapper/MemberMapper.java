@@ -33,7 +33,6 @@ public class MemberMapper {
                 .activated(true)
                 .authorities(Collections.singleton(authority))
                 .build();
-
         return member;
     }
 
