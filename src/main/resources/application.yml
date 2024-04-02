@@ -1,35 +1,36 @@
 spring:
 
-  h2:
-    console:
-      enabled: true
-
+#  h2:
+#    console:
+#      enabled: true
+#
   datasource:
-      url:  jdbc:h2:tcp://localhost/~/test
-      username: sa
-      password:
-      driver-class-name: org.h2.Driver
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
-#    username: ${DB_USERNAME}
-#    password: ${DB_PASSWORD}
+#      url:  jdbc:h2:tcp://localhost/~/test
+#      username: sa
+#      password:
+#      driver-class-name: org.h2.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
   jpa:
-      database-platform: org.hibernate.dialect.H2Dialect
-      hibernate:
-        ddl-auto: create-drop
-      properties:
-        hibernate:
-          show_sql: true
-          default_batch_fetch_size: 100
-          format_sql: true
-      defer-datasource-initialization: true
-#    show-sql: true
-#    hibernate:
-#      ddl-auto: update
-#    properties:
+#      database-platform: org.hibernate.dialect.H2Dialect
 #      hibernate:
-#        format_sql: true
-#        dialect: org.hibernate.dialect.MySQLDialect
+#        ddl-auto: create-drop
+#      properties:
+#        hibernate:
+#          show_sql: true
+#          default_batch_fetch_size: 100
+#          format_sql: true
+#      defer-datasource-initialization: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
 
 logging:
   level:
