@@ -15,7 +15,8 @@ public class ProductSearchController {
     private final ProductSearchService productSearchService;
 
     @GetMapping("/products/search")
-    public String searchProduct(@RequestParam(value = "query") String query) {
-        return productSearchService.searchProduct(query);
+    public String searchProduct(@RequestParam(value = "query") String query,
+                                @RequestParam(value = "display", defaultValue = "10") int display) {
+        return productSearchService.searchProduct(query, display);
     }
 }
