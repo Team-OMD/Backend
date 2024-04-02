@@ -16,10 +16,13 @@ public class MemberRequest {
     @Email
     @NotBlank
     private String email;
+
     @NotBlank
     private String password;
+
     @NotBlank
     private String name;
+
     @NotBlank
     private String nickname;
 }

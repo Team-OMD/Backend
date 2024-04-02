@@ -10,5 +10,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class MemberListResponse {
+
     private List<MemberResponse> memberList;
+
 }
