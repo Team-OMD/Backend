@@ -1,5 +1,6 @@
 package com.onmydesk.backend.member.controller;
 
+import com.onmydesk.backend.global.ApiResponse;
 import com.onmydesk.backend.jwt.JwtFilter;
 import com.onmydesk.backend.jwt.TokenProvider;
 import com.onmydesk.backend.member.dto.*;
@@ -24,15 +25,16 @@ public class MemberController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberService memberService;
+    private final ApiResponse apiResponse; // ApiResponse 주입
 
     @PostMapping("/signup")
-    public ResponseEntity<MemberResponse> signIn(@Valid @RequestBody MemberRequest request) {
-        return ResponseEntity.ok(memberService.signup(request));
+    public ResponseEntity<?> signIn(@Valid @RequestBody MemberRequest request) {
+        MemberResponse memberResponse = memberService.signup(request);
+        return apiResponse.success("회원가입 성공", memberResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenDto> authorize(@Valid @RequestBody MemberLoginRequest request) {
-
+    public ResponseEntity<?> authorize(@Valid @RequestBody MemberLoginRequest request) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
 
@@ -44,25 +46,28 @@ public class MemberController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
 
-        return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
+        TokenDto tokenDto = new TokenDto(jwt);
+        return apiResponse.success("로그인 성공", tokenDto, HttpStatus.OK);
     }
 
     @GetMapping("/user")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<MemberResponse> getMyUserInfo() {
-        return ResponseEntity.ok(memberService.getMyMemberWithAuthorities());
+    public ResponseEntity<?> getMyUserInfo() {
+        MemberResponse memberResponse = memberService.getMyMemberWithAuthorities();
+        return apiResponse.success("개인 정보 조회 성공", memberResponse, HttpStatus.OK);
     }
 
     @PutMapping("/user")
     @PreAuthorize("hasAnyRole('USER')")
-    public ResponseEntity<MemberResponse> update(@Valid @RequestBody MemberUpdateRequest request) {
-        return ResponseEntity.ok(memberService.update(request));
+    public ResponseEntity<?> update(@Valid @RequestBody MemberUpdateRequest request) {
+        MemberResponse memberResponse = memberService.update(request);
+        return apiResponse.success("회원 정보 수정 성공", memberResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/user")
     @PreAuthorize("hasAnyRole('USER')")
     public ResponseEntity<?> delete() {
-        return ResponseEntity.ok(memberService.delete());
+        memberService.delete();
+        return apiResponse.success("회원 탈퇴 성공", HttpStatus.NO_CONTENT);
     }
 }
-
