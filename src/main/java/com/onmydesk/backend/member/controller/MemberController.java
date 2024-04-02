@@ -23,7 +23,6 @@ public class MemberController {
 
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-
     private final MemberService memberService;
 
     @PostMapping("/signup")
