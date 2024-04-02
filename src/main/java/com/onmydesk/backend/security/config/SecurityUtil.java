@@ -35,4 +35,5 @@ public class SecurityUtil {
         String username = authentication.getName();
         return Optional.ofNullable(email);
     }
+
 }
