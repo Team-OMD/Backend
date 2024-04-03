@@ -1,5 +1,6 @@
 package com.onmydesk.backend.mocktest;
 
+import com.onmydesk.backend.page.domain.Page;
 import com.onmydesk.backend.product.ProductRepository;
 import com.onmydesk.backend.product.domain.Product;
 import com.onmydesk.backend.product.service.ProductService;
@@ -11,8 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,5 +75,42 @@ class ProductServiceTest {
             System.out.println("카테고리4: " + product.getCategory4());
             System.out.println("------------------------------------");
         }
+    }
+
+    @Test
+    void getFind_Success_Test() {
+        // 준비
+        Product product = Product.builder()
+                .id(1L)
+                .img("test.jpg")
+                .productCode("TEST001")
+                .brand("Test Brand 1")
+                .maker("Test Maker 1")
+                .build();
+
+        Page page1 = Page.builder()
+                .id(1L)
+                .price(1000)
+                .link("https://example1.com")
+                .storeName("Test Store1")
+                .build();
+
+        Page page2 = Page.builder()
+                .id(2L)
+                .price(2000)
+                .link("https://example2.com")
+                .storeName("Test Store2")
+                .build();
+
+        // 상품이 존재할 경우를 가정
+        given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
+
+        // 실행
+        Product actualProduct = productService.getFind(1L);
+
+        // 검증
+        assertNotNull(actualProduct);
+        assertEquals(product.getId(), actualProduct.getId());
+        System.out.println(product.getPages());
     }
 }
