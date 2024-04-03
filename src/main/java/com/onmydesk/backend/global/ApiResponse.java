@@ -63,6 +63,17 @@ public class ApiResponse {
         return get(STATUS_SUCCESS, null, data, null, httpStatus);
     }
 
+//     성공 응답 반환 (메시지, 데이터)
+//     {
+//          "status" : "success",
+//          "message" : "success message",
+//          "data" : null
+//     }
+
+    public <T> ResponseEntity<?> success(String message, HttpStatus httpStatus) {
+        return get(STATUS_SUCCESS, message, null, null, httpStatus);
+    }
+
 //     성공 응답 반환 (상태)
 //     {
 //          "status" : "success",
