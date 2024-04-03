@@ -16,7 +16,7 @@ public class PostExceptionHandler {
     // 게시글을 찾을 수 없는 경우의 예외 처리
     @ExceptionHandler(PostNotFoundException.class)
     public ResponseEntity<?> handlePostNotFoundException(PostNotFoundException e) {
-        return apiResponse.fail(e.getMessage(), HttpStatus.NOT_FOUND);
+        return apiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     // 게시글 업데이트 중 발생한 예외 처리
