@@ -1,8 +1,12 @@
 package com.onmydesk.backend.product.domain;
 
 import com.onmydesk.backend.global.BaseEntity;
+import com.onmydesk.backend.page.domain.Page;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,6 +19,9 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Long id;
+
+    @Column(name = "product_name",length = 20, nullable = false)
+    private String productName;
 
     @Column(length = 100, nullable = false)
     private String img;
@@ -39,4 +46,7 @@ public class Product extends BaseEntity {
 
     @Column(length = 20)
     private String category4;
+
+    @OneToMany(mappedBy = "product")
+    private List<Page> pages = new ArrayList<>();
 }
