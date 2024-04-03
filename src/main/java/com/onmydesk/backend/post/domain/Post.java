@@ -17,7 +17,7 @@ public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false)
+    @Column(name = "post_id", updatable = false)
     private Long id;
 
     // 멤버 정보, 이미지는 추후에 추가
