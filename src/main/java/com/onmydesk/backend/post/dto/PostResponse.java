@@ -14,6 +14,7 @@ public class PostResponse {
     private final Long id;
     private final String title;
     private final String content;
+    private final String nickname;
     private final int heartCount;
     private final int viewCount;
     private final int totalPrice;
