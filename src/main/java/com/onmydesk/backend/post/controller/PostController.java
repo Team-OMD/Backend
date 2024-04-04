@@ -52,7 +52,7 @@ public class PostController {
 
     // 게시글 삭제
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<?> deleteArticle(@PathVariable("postId") Long postId) {
+    public ResponseEntity<?> deletePost(@PathVariable("postId") Long postId) {
         postService.delete(postId);
         return apiResponse.success("게시글 삭제 성공", HttpStatus.OK);
     }
