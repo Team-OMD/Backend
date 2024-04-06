@@ -1,5 +1,7 @@
 package com.onmydesk.backend.post.service;
 
+import com.onmydesk.backend.heart.domain.Heart;
+import com.onmydesk.backend.heart.repository.HeartRepository;
 import com.onmydesk.backend.member.domain.Member;
 import com.onmydesk.backend.member.service.MemberService;
 import com.onmydesk.backend.post.domain.Post;
@@ -23,6 +25,7 @@ public class PostService {
     private final PostMapper postMapper;
     private final MemberService memberService;
     private final ServiceValidator serviceValidator;
+    private final HeartRepository heartRepository;
 
     // 게시글 생성
     @Transactional
@@ -64,5 +67,13 @@ public class PostService {
         Member member = memberService.getMember();
         Post post = serviceValidator.validatePostOwnership(postId, member);
         postRepository.delete(post);
+    }
+
+    // 좋아요 누른 게시물 조회
+    public List<PostResponse> getHeartPost() {
+        Member member = memberService.getMember();
+        List<Heart> heart = heartRepository.findAllByMember(member);
+        List<Post> posts = heart.stream().map(postRepository::findByHeart).toList();
+        return posts.stream().map(postMapper::toResponse).collect(Collectors.toList());
     }
 }

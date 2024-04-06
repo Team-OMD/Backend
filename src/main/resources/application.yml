@@ -25,7 +25,8 @@ spring:
 #          format_sql: true
 #      defer-datasource-initialization: true
     show-sql: true
-    hibernate.hbm2ddl.auto: update
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true

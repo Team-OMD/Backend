@@ -1,11 +1,14 @@
 package com.onmydesk.backend.post.domain;
 
 import com.onmydesk.backend.global.BaseEntity;
+import com.onmydesk.backend.heart.domain.Heart;
 import com.onmydesk.backend.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,6 +28,10 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id", updatable = false)
     private Member member;
+
+    // 좋아요 정보
+    @OneToMany(mappedBy = "post")
+    private List<Heart> heart;
 
     // 이미지는 추후에 추가
 

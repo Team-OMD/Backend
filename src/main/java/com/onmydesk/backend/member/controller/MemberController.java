@@ -5,6 +5,7 @@ import com.onmydesk.backend.jwt.JwtFilter;
 import com.onmydesk.backend.jwt.TokenProvider;
 import com.onmydesk.backend.member.dto.*;
 import com.onmydesk.backend.member.service.MemberService;
+import com.onmydesk.backend.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +26,7 @@ public class MemberController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberService memberService;
+    private final PostService postService;
     private final ApiResponse apiResponse; // ApiResponse 주입
 
     @PostMapping("/signup")
@@ -69,5 +71,11 @@ public class MemberController {
     public ResponseEntity<?> delete() {
         memberService.delete();
         return apiResponse.success("회원 탈퇴 성공", HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/user/posts/hearts")
+    @PreAuthorize("hasAnyRole('USER')")
+    public ResponseEntity<?> getMyHeartPost() {
+        return apiResponse.success("좋아요한 게시물 조회 성공", postService.getHeartPost(), HttpStatus.OK);
     }
 }
