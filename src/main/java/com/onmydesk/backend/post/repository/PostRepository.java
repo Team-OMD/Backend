@@ -1,5 +1,6 @@
 package com.onmydesk.backend.post.repository;
 
+import com.onmydesk.backend.heart.domain.Heart;
 import com.onmydesk.backend.post.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,4 +22,6 @@ public interface PostRepository extends JpaRepository<Post, Long>{
     @Transactional
     @Query("update Post p set p.heartCount = p.heartCount - 1 where p = :selectedPost")
     void subHeartCount(Post selectedPost);
+
+    Post findByHeart(Heart heart);
 }
