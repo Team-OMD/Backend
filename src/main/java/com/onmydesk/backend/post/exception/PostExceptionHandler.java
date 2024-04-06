@@ -31,10 +31,4 @@ public class PostExceptionHandler {
         return apiResponse.error(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    // 기타 예외 처리
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception e) {
-        return apiResponse.error("서버 내부 오류", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
 }
