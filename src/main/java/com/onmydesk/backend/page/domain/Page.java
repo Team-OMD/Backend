@@ -1,5 +1,6 @@
 package com.onmydesk.backend.page.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onmydesk.backend.product.domain.Product;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +19,7 @@ public class Page {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
+    @JsonIgnore
     private Product product;
 
     @Column(nullable = false)
