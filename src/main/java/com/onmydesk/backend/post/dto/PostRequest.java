@@ -12,13 +12,4 @@ public class PostRequest {
     private String title;
     private String content;
 
-    public Post toEntity() {
-        return Post.builder()
-                .title(title)
-                .content(content)
-                .heartCount(0)
-                .viewCount(0)
-                .build();
-    }
-
 }

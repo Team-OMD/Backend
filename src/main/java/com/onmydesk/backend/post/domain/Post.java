@@ -1,6 +1,7 @@
 package com.onmydesk.backend.post.domain;
 
 import com.onmydesk.backend.global.BaseEntity;
+import com.onmydesk.backend.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -17,10 +18,15 @@ public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false)
+    @Column(name = "post_id", updatable = false)
     private Long id;
 
-    // 멤버 정보, 이미지는 추후에 추가
+    // 멤버 정보
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id", updatable = false)
+    private Member member;
+
+    // 이미지는 추후에 추가
 
     // 제목
     @Column(name = "title", length = 20, nullable = false)
