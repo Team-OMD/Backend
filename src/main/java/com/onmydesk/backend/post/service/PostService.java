@@ -11,13 +11,13 @@ import com.onmydesk.backend.post.exception.PostNotFoundException;
 import com.onmydesk.backend.post.exception.PostUpdateException;
 import com.onmydesk.backend.post.mapper.PostMapper;
 import com.onmydesk.backend.post.repository.PostRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +39,7 @@ public class PostService {
     }
 
     // 게시글 목록 조회
+    @Transactional(readOnly = true)
     public List<PostResponse> list(Integer page, Integer limit, Integer criteria) {
         String sortProperty = switch (criteria) {
             case 1 -> "createdAt";
@@ -56,9 +57,11 @@ public class PostService {
     }
 
     // 게시글 단일 조회
+    @Transactional
     public PostResponse find(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
+        postRepository.addViewCount(post);
         return postMapper.toResponse(post);
     }
 
