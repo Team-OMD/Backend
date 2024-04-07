@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -30,10 +29,13 @@ public class PostController {
 
     // 게시글 목록 조회
     @GetMapping("/posts")
-    public ResponseEntity<?> getList(){
-        List<PostResponse> postResponses = postService.list();
+    public ResponseEntity<?> getList(
+            @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "1") Integer criteria
+    ){
+        List<PostResponse> postResponses = postService.list(page, limit, criteria);
         return apiResponse.success("게시글 목록 조회 성공", postResponses, HttpStatus.OK);
     }
+
 
     // 게시글 상세 조회
     @GetMapping("/posts/{postId}")

@@ -13,6 +13,10 @@ import com.onmydesk.backend.post.mapper.PostMapper;
 import com.onmydesk.backend.post.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,9 +39,18 @@ public class PostService {
     }
 
     // 게시글 목록 조회
-    public List<PostResponse> list() {
-        List<Post> posts = postRepository.findAll();
-        return posts.stream()
+    public List<PostResponse> list(Integer page, Integer limit, Integer criteria) {
+        String sortProperty = switch (criteria) {
+            case 1 -> "createdAt";
+            case 2 -> "heartCount";
+            case 3 -> "viewCount";
+            default -> throw new IllegalArgumentException("잘못된 정렬 기준입니다.");
+        };
+
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.Direction.DESC, sortProperty);
+
+        Page<Post> postPage = postRepository.findAll(pageable);
+        return postPage.stream()
                 .map(postMapper::toResponse)
                 .collect(Collectors.toList());
     }
