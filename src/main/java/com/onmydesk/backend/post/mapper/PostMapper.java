@@ -12,15 +12,23 @@ import com.onmydesk.backend.product.dto.ProductRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class PostMapper {
 
     public Post toPostEntity(PostRequest request, Member member) {
+
+        // 상품 가격 합산 로직 추가
+        double totalPriceDouble = calculateTotalPrice(request.getProducts());
+        int totalPrice = (int) totalPriceDouble;
+
         return Post.builder()
                 .member(member)
                 .title(request.getTitle())
                 .content(request.getContent())
+                .totalPrice(totalPrice)
                 .heartCount(0)
                 .viewCount(0)
                 .build();
@@ -54,6 +62,15 @@ public class PostMapper {
                 .product(product)
                 .post(post)
                 .build();
+    }
+
+    private double calculateTotalPrice(List<ProductRequest> products) {
+        if (products == null || products.isEmpty()) {
+            return 0;
+        }
+        return products.stream()
+                .mapToDouble(ProductRequest::getLprice)
+                .sum();
     }
 
     public PostResponse toResponse(Post post) {

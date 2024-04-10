@@ -20,12 +20,8 @@ import com.onmydesk.backend.product.repository.PageRepository;
 import com.onmydesk.backend.product.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -72,29 +68,17 @@ public class PostService {
     }
 
     // 게시글 목록 조회
-    @Transactional(readOnly = true)
-    public List<PostResponse> list(Integer page, Integer limit, Integer criteria) {
-        String sortProperty = switch (criteria) {
-            case 1 -> "createdAt";
-            case 2 -> "heartCount";
-            case 3 -> "viewCount";
-            default -> throw new IllegalArgumentException("잘못된 정렬 기준입니다.");
-        };
-
-        Pageable pageable = PageRequest.of(page - 1, limit, Sort.Direction.DESC, sortProperty);
-
-        Page<Post> postPage = postRepository.findAll(pageable);
-        return postPage.stream()
+    public List<PostResponse> list() {
+        List<Post> posts = postRepository.findAll();
+        return posts.stream()
                 .map(postMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     // 게시글 단일 조회
-    @Transactional
     public PostResponse find(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
-        postRepository.addViewCount(post);
         return postMapper.toResponse(post);
     }
 
@@ -103,7 +87,15 @@ public class PostService {
     public PostResponse update(Long postId, PostRequest request) {
         Member member = memberService.getMember();
         Post post = serviceValidator.validatePostOwnership(postId, member);
-        post.update(request.getTitle(), request.getContent());
+
+        // 요청된 상품들의 가격을 누적하여 전체 비용 계산
+        int totalPrice = 0;
+        for (ProductRequest productRequest : request.getProducts()) {
+            totalPrice += productRequest.getLprice();
+        }
+
+        // 게시물의 전체 비용 업데이트
+        post.update(request.getTitle(), request.getContent(), totalPrice);
 
         // 요청된 상품 코드와 기존 상품 코드를 비교하여 처리
         Set<String> requestedProductCodes = request.getProducts().stream()

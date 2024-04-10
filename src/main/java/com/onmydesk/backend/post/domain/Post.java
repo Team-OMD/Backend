@@ -58,8 +58,9 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<PostProduct> postProducts;
 
-    public void update(String title, String content) {
+    public void update(String title, String content, int totalPrice) {
         this.title = title;
         this.content = content;
+        this.totalPrice = totalPrice;
     }
 }
