@@ -1,6 +1,6 @@
 package com.onmydesk.backend.product.service;
 
-import com.onmydesk.backend.product.ProductRepository;
+import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.product.domain.Product;
 import com.onmydesk.backend.product.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
