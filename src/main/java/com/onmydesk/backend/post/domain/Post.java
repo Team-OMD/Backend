@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Builder
 @Where(clause = "is_deleted = false")
-@SQLDelete(sql = "UPDATE post SET is_deleted = true WHERE id=?")
+@SQLDelete(sql = "UPDATE post SET is_deleted = true WHERE post_id=?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Post extends BaseEntity {
@@ -52,8 +52,11 @@ public class Post extends BaseEntity {
     private int viewCount;
 
     // 추후에 nullable=false 추가
-    @Column(name = "post_total_price" )
+    @Column(name = "post_total_price")
     private int totalPrice;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<PostProduct> postProducts;
 
     public void update(String title, String content) {
         this.title = title;

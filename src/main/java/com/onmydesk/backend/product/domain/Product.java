@@ -1,9 +1,10 @@
 package com.onmydesk.backend.product.domain;
 
 import com.onmydesk.backend.global.BaseEntity;
-import com.onmydesk.backend.page.domain.Page;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Where(clause = "is_deleted = false")
+@SQLDelete(sql = "UPDATE product SET is_deleted = true WHERE product_id=?")
 public class Product extends BaseEntity {
 
     @Id
@@ -20,7 +23,7 @@ public class Product extends BaseEntity {
     @Column(name = "product_id")
     private Long id;
 
-    @Column(name = "product_name",length = 20, nullable = false)
+    @Column(name = "product_name", length = 100, nullable = false)
     private String productName;
 
     @Column(length = 100, nullable = false)
@@ -28,6 +31,9 @@ public class Product extends BaseEntity {
 
     @Column(name = "product_code", length = 20, nullable = false)
     private String productCode;
+
+    @Column(nullable = false)
+    private int lprice;
 
     @Column(length = 20, nullable = false)
     private String brand;
@@ -47,6 +53,6 @@ public class Product extends BaseEntity {
     @Column(length = 20)
     private String category4;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
     private List<Page> pages = new ArrayList<>();
 }
