@@ -16,12 +16,13 @@ import java.util.List;
 public class PostRequest {
 
     @NotBlank
-    @Schema(description = "게시글 제목", nullable = false, example = "제목")
+    @Schema(description = "게시글 제목", nullable = false, example = "title")
     private String title;
 
     @NotBlank
-    @Schema(description = "게시글 내용", nullable = false, example = "내용")
+    @Schema(description = "게시글 내용", nullable = false, example = "content")
     private String content;
 
     private List<ProductRequest> products;
+
 }
