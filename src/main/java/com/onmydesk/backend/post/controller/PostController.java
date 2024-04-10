@@ -1,17 +1,15 @@
 package com.onmydesk.backend.post.controller;
 
-import com.onmydesk.backend.post.domain.Post;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.post.service.PostService;
-import com.onmydesk.backend.global.ApiResponse; // ApiResponse 클래스 임포트 필요
+import com.onmydesk.backend.global.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -24,7 +22,7 @@ public class PostController {
     // 게시글 생성
     @PostMapping("/posts")
     public ResponseEntity<?> createPost(@RequestBody PostRequest request) {
-        Post post = postService.save(request);
+        postService.savePost(request);
         return apiResponse.success("게시글 생성 성공", HttpStatus.CREATED);
     }
 
