@@ -2,8 +2,13 @@ package com.onmydesk.backend.post.mapper;
 
 import com.onmydesk.backend.member.domain.Member;
 import com.onmydesk.backend.post.domain.Post;
+import com.onmydesk.backend.post.domain.PostProduct;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
+import com.onmydesk.backend.product.domain.Page;
+import com.onmydesk.backend.product.domain.Product;
+import com.onmydesk.backend.product.dto.PageRequest;
+import com.onmydesk.backend.product.dto.ProductRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PostMapper {
 
-    public Post toEntity(PostRequest request, Member member) {
+    public Post toPostEntity(PostRequest request, Member member) {
         return Post.builder()
                 .member(member)
                 .title(request.getTitle())
@@ -21,11 +26,40 @@ public class PostMapper {
                 .build();
     }
 
+    public Product toProductEntity(ProductRequest request) {
+        return Product.builder()
+                .productName(request.getProductName())
+                .img(request.getImg())
+                .productCode(request.getProductCode())
+                .brand(request.getBrand())
+                .maker(request.getMaker())
+                .category1(request.getCategory1())
+                .category2(request.getCategory2())
+                .category3(request.getCategory3())
+                .category4(request.getCategory4())
+                .build();
+    }
+
+    public Page toPageEntity(PageRequest request, Product product) {
+        return Page.builder()
+                .product(product)
+                .price(request.getPrice())
+                .link(request.getLink())
+                .storeName(request.getStoreName())
+                .build();
+    }
+
+    public PostProduct toPostProductEntity(Post post, Product product) {
+        return PostProduct.builder()
+                .product(product)
+                .post(post)
+                .build();
+    }
+
     public PostResponse toResponse(Post post) {
 
         // 회원 정보
         Member member = post.getMember();
-        String nickname = (member != null) ? member.getNickname() : null;
 
         return PostResponse.builder()
                 .id(post.getId())
@@ -39,5 +73,4 @@ public class PostMapper {
                 .updatedAt(post.getUpdatedAt())
                 .build();
     }
-
 }
