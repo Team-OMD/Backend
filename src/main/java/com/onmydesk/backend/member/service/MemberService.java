@@ -24,6 +24,11 @@ public class MemberService {
             throw new RestApiException(MemberErrorCode.DUPLICATE_MEMBER);
         }
 
+        // 닉네임으로 기존 회원 검사
+        if (memberRepository.findOneByNickname(request.getNickname()).orElse(null) != null) {
+            throw new RestApiException(MemberErrorCode.DUPLICATE_NICKNAME);
+        }
+
         Member member = memberMapper.toEntity(request);
 
         return memberMapper.toResponse(memberRepository.save(member));
