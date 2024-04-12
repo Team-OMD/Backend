@@ -1,5 +1,7 @@
 package com.onmydesk.backend.post.service;
 
+import com.onmydesk.backend.error.errorcode.PostErrorCode;
+import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.heart.domain.Heart;
 import com.onmydesk.backend.heart.repository.HeartRepository;
 import com.onmydesk.backend.member.domain.Member;
@@ -7,8 +9,6 @@ import com.onmydesk.backend.member.service.MemberService;
 import com.onmydesk.backend.post.domain.Post;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
-import com.onmydesk.backend.post.exception.PostNotFoundException;
-import com.onmydesk.backend.post.exception.PostUpdateException;
 import com.onmydesk.backend.post.mapper.PostMapper;
 import com.onmydesk.backend.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class PostService {
             case 1 -> "createdAt";
             case 2 -> "heartCount";
             case 3 -> "viewCount";
-            default -> throw new IllegalArgumentException("잘못된 정렬 기준입니다.");
+            default -> throw new IllegalArgumentException();
         };
 
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.Direction.DESC, sortProperty);
@@ -60,7 +60,7 @@ public class PostService {
     @Transactional
     public PostResponse find(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException(postId));
+                .orElseThrow(() -> new RestApiException(PostErrorCode.POST_NOT_FOUND));
         postRepository.addViewCount(post);
         return postMapper.toResponse(post);
     }
@@ -71,11 +71,8 @@ public class PostService {
         Member member = memberService.getMember();
         Post post = serviceValidator.validatePostOwnership(postId, member);
 
-        try {
-            post.update(request.getTitle(), request.getContent());
-        } catch (Exception e) {
-            throw new PostUpdateException(postId);
-        }
+        post.update(request.getTitle(), request.getContent());
+
         return postMapper.toResponse(post);
     }
 

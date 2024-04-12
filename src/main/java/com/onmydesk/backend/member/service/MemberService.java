@@ -1,9 +1,9 @@
 package com.onmydesk.backend.member.service;
 
+import com.onmydesk.backend.error.errorcode.MemberErrorCode;
+import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.member.domain.Member;
 import com.onmydesk.backend.member.dto.*;
-import com.onmydesk.backend.member.exception.DuplicateMemberException;
-import com.onmydesk.backend.member.exception.NotFoundMemberException;
 import com.onmydesk.backend.member.mapper.MemberMapper;
 import com.onmydesk.backend.member.repository.MemberRepository;
 import com.onmydesk.backend.security.config.SecurityUtil;
@@ -21,7 +21,7 @@ public class MemberService {
     @Transactional
     public MemberResponse signup(MemberRequest request) {
         if (memberRepository.findOneWithAuthoritiesByEmail(request.getEmail()).orElse(null) != null) {
-            throw new DuplicateMemberException("이미 가입되어 있는 회원입니다.");
+            throw new RestApiException(MemberErrorCode.DUPLICATE_MEMBER);
         }
 
         Member member = memberMapper.toEntity(request);
@@ -34,7 +34,7 @@ public class MemberService {
         return memberMapper.toResponse(
                 SecurityUtil.getCurrentUsername()
                         .flatMap(memberRepository::findOneWithAuthoritiesByEmail)
-                        .orElseThrow(() -> new NotFoundMemberException("Member not found"))
+                        .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND))
         );
     }
 
@@ -43,7 +43,7 @@ public class MemberService {
 
         Member member = SecurityUtil.getCurrentUsername()
                 .flatMap(memberRepository::findOneWithAuthoritiesByEmail)
-                .orElseThrow(() -> new NotFoundMemberException("Member not found"));
+                .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         member.update(request);
 
@@ -54,7 +54,7 @@ public class MemberService {
     public String delete() {
         Member member = SecurityUtil.getCurrentUsername()
                 .flatMap(memberRepository::findOneWithAuthoritiesByEmail)
-                .orElseThrow(() -> new NotFoundMemberException("Member not found"));
+                .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         memberRepository.delete(member);
         return "정상적으로 탈퇴되었습니다.";
@@ -62,7 +62,7 @@ public class MemberService {
 
     public Member getMember() {
         Member member = SecurityUtil.getCurrentUsername().flatMap(memberRepository::findOneWithAuthoritiesByEmail)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+                .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         return member;
     }
