@@ -1,13 +1,13 @@
 package com.onmydesk.backend.heart.service;
 
+import com.onmydesk.backend.error.errorcode.HeartErrorCode;
+import com.onmydesk.backend.error.errorcode.PostErrorCode;
+import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.heart.domain.Heart;
-import com.onmydesk.backend.heart.exception.HeartAlreadyExistException;
-import com.onmydesk.backend.heart.exception.HeartNotFoundException;
 import com.onmydesk.backend.heart.repository.HeartRepository;
 import com.onmydesk.backend.member.domain.Member;
 import com.onmydesk.backend.member.service.MemberService;
 import com.onmydesk.backend.post.domain.Post;
-import com.onmydesk.backend.post.exception.PostNotFoundException;
 import com.onmydesk.backend.post.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +24,10 @@ public class HeartService {
     public String insert(Long postId) throws Exception {
         Member member = memberService.getMember();
 
-        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(postId));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RestApiException(PostErrorCode.POST_NOT_FOUND));
 
         if (heartRepository.findByMemberAndPost(member, post).isPresent()) {
-            throw new HeartAlreadyExistException(postId);
+            throw new RestApiException(HeartErrorCode.HEART_ALREADY_EXIST);
         }
 
         Heart heart = Heart.builder()
@@ -45,10 +45,10 @@ public class HeartService {
     public String delete(Long postId) {
         Member member = memberService.getMember();
 
-        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(postId));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RestApiException(PostErrorCode.POST_NOT_FOUND));
 
         Heart heart = heartRepository.findByMemberAndPost(member, post)
-                .orElseThrow(() -> new HeartNotFoundException(postId));
+                .orElseThrow(() -> new RestApiException(HeartErrorCode.HEART_NOT_FOUND));
 
         heartRepository.delete(heart);
         postRepository.subHeartCount(post);

@@ -6,8 +6,10 @@ import com.onmydesk.backend.product.dto.PageRequest;
 import com.onmydesk.backend.product.dto.ProductRequest;
 import com.onmydesk.backend.product.repository.PageRepository;
 import com.onmydesk.backend.product.repository.ProductRepository;
+import com.onmydesk.backend.error.errorcode.ProductErrorCode;
+import com.onmydesk.backend.error.exception.RestApiException;
+import com.onmydesk.backend.product.ProductRepository;
 import com.onmydesk.backend.product.domain.Product;
-import com.onmydesk.backend.product.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +32,7 @@ public class ProductService {
     // 상품 개별 조회
     public Product getFind(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException(productId));
+                .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
     }
 
     @Transactional
