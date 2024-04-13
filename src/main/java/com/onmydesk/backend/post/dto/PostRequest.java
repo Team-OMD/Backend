@@ -20,7 +20,7 @@ public class PostRequest {
     private String title;
 
     @NotBlank
-    @Schema(description = "게시글 내용", nullable = false, example = "content")
+    @Schema(description = "게시글 내용", example = "content")
     private String content;
 
     private List<ProductRequest> products;

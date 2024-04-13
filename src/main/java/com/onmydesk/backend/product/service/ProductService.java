@@ -1,10 +1,16 @@
 package com.onmydesk.backend.product.service;
 
+import com.onmydesk.backend.post.mapper.PostMapper;
+import com.onmydesk.backend.product.domain.Page;
+import com.onmydesk.backend.product.dto.PageRequest;
+import com.onmydesk.backend.product.dto.ProductRequest;
+import com.onmydesk.backend.product.repository.PageRepository;
 import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.product.domain.Product;
 import com.onmydesk.backend.product.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,6 +19,8 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final PageRepository pageRepository;
+    private final PostMapper postMapper;
 
     // 상품 목록 조회
     public List<Product> getList() {
@@ -23,5 +31,19 @@ public class ProductService {
     public Product getFind(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
+    }
+
+    @Transactional
+    public Product saveProduct(ProductRequest productRequest) {
+        return productRepository.findByProductCode(productRequest.getProductCode())
+                .orElseGet(() -> {
+                    Product product = postMapper.toProductEntity(productRequest);
+                    product = productRepository.save(product);
+                    for (PageRequest pageRequest : productRequest.getPages()) {
+                        Page page = postMapper.toPageEntity(pageRequest, product);
+                        pageRepository.save(page);
+                    }
+                    return product;
+                });
     }
 }
