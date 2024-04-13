@@ -1,6 +1,6 @@
 package com.onmydesk.backend.product.dto;
 
-import com.onmydesk.backend.page.domain.Page;
+import com.onmydesk.backend.product.domain.Page;
 import com.onmydesk.backend.product.domain.Product;
 import lombok.Getter;
 

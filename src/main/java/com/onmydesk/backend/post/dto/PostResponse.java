@@ -1,8 +1,6 @@
 package com.onmydesk.backend.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.onmydesk.backend.post.domain.Post;
 import lombok.Builder;
 import lombok.Getter;
 

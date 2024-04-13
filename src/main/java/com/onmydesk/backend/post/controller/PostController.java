@@ -1,10 +1,9 @@
 package com.onmydesk.backend.post.controller;
 
-import com.onmydesk.backend.post.domain.Post;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.post.service.PostService;
-import com.onmydesk.backend.global.ApiResponse; // ApiResponse 클래스 임포트 필요
+import com.onmydesk.backend.global.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,7 +28,7 @@ public class PostController {
     @Operation(summary = "게시글 생성", description = "새로운 게시글을 생성한다.")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성"))
     public ResponseEntity<?> createPost(@RequestBody PostRequest request) {
-        Post post = postService.save(request);
+        postService.savePost(request);
         return apiResponse.success("게시글 생성 성공", HttpStatus.CREATED);
     }
 
