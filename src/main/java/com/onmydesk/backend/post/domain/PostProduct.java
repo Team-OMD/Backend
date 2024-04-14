@@ -13,12 +13,12 @@ import org.hibernate.annotations.Where;
 @AllArgsConstructor
 @Builder
 @Where(clause = "is_deleted = false")
-@SQLDelete(sql = "UPDATE post_product SET is_deleted = true WHERE postproduct_id=?")
+@SQLDelete(sql = "UPDATE post_product SET is_deleted = true WHERE post_product_id=?")
 public class PostProduct extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "postproduct_id")
+    @Column(name = "post_product_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,5 +1,6 @@
 package com.onmydesk.backend.post.controller;
 
+import com.onmydesk.backend.post.dto.PostAndProductResponse;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.post.service.PostService;
@@ -49,8 +50,8 @@ public class PostController {
     @Operation(summary = "게시글 상세 조회", description = "게시글 상세 정보를 조회한다.")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
     public ResponseEntity<?> getPost(@PathVariable("postId") Long postId) {
-        PostResponse postResponse = postService.find(postId);
-        return apiResponse.success("게시글 상세 조회 성공", postResponse, HttpStatus.OK);
+        PostAndProductResponse postAndProductResponse = postService.find(postId);
+        return apiResponse.success("게시글 상세 조회 성공", postAndProductResponse, HttpStatus.OK);
     }
 
     // 게시글 업데이트
