@@ -10,15 +10,20 @@ import org.springframework.stereotype.Component;
 
     @RequiredArgsConstructor
     @Component
-    public class ServiceValidator {
+    public class PostValidator {
         private final PostRepository postRepository;
 
         public Post validatePostOwnership(Long postId, Member member) {
-            Post post = postRepository.findById(postId)
-                    .orElseThrow(() -> new RestApiException(PostErrorCode.POST_NOT_FOUND));
+            Post post = validatePostExists(postId);
             if (!post.getMember().equals(member)) {
                 throw new RestApiException(PostErrorCode.NO_PERMISSION);
             }
+            return post;
+        }
+
+        public Post validatePostExists(Long postId) {
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new RestApiException(PostErrorCode.POST_NOT_FOUND));
             return post;
         }
     }
