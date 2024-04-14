@@ -12,7 +12,7 @@ import org.hibernate.annotations.Where;
 @Entity
 @Builder
 @Where(clause = "is_deleted = false")
-@SQLDelete(sql = "UPDATE post SET is_deleted = true WHERE comment_id=?")
+@SQLDelete(sql = "UPDATE comment SET is_deleted = true WHERE comment_id=?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Comment extends BaseEntity {
