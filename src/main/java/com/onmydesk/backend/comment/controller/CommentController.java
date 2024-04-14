@@ -4,6 +4,9 @@ import com.onmydesk.backend.comment.dto.CommentRequest;
 import com.onmydesk.backend.comment.dto.CommentResponse;
 import com.onmydesk.backend.comment.service.CommentService;
 import com.onmydesk.backend.global.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,30 +17,39 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "댓글", description = "댓글 API")
 public class CommentController {
 
     private final CommentService commentService;
     private final ApiResponse apiResponse;
 
     @PostMapping("/posts/{postId}/comments")
+    @Operation(summary = "댓글 생성", description = "새로운 댓글을 생성한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성"))
     public ResponseEntity<?> createComment(@PathVariable("postId") Long postId, @RequestBody CommentRequest request) {
         commentService.save(request, postId);
         return apiResponse.success("댓글 생성 성공", HttpStatus.CREATED);
     }
 
     @GetMapping("/posts/{postId}/comments")
+    @Operation(summary = "댓글 조회", description = "댓글을 조회한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
     public ResponseEntity<?> getComments(@PathVariable("postId") Long postId) {
         List<CommentResponse> commentListResponse = commentService.list(postId);
         return apiResponse.success("댓글 조회 성공", commentListResponse, HttpStatus.OK);
     }
 
     @PutMapping("/posts/{postId}/comments/{commentId}")
+    @Operation(summary = "댓글 수정", description = "댓글을 수정한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
     public ResponseEntity<?> updateComment(@PathVariable("postId") Long postId, @PathVariable("commentId") Long commentId, @RequestBody CommentRequest request) {
         CommentResponse commentResponse = commentService.update(postId, commentId, request);
         return apiResponse.success("댓글 수정 성공", commentResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/posts/{postId}/comments/{commentId}")
+    @Operation(summary = "댓글 삭제", description = "댓글을 삭제한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "삭제"))
     public ResponseEntity<?> deleteComment(@PathVariable("postId") Long postId, @PathVariable("commentId") Long commentId) {
         commentService.delete(postId, commentId);
         return apiResponse.success("댓글 삭제 성공", HttpStatus.NO_CONTENT);
