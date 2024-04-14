@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class CommentRequest {
 
     @NotBlank
-    @Schema(description = "댓글 내용", nullable = false, example = "title")
+    @Schema(description = "댓글 내용", nullable = false, example = "content")
     private String content;
 
     public Comment toEntity(Member member, Post post){
