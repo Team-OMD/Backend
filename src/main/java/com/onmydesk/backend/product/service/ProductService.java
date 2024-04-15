@@ -8,7 +8,6 @@ import com.onmydesk.backend.product.repository.PageRepository;
 import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.error.errorcode.ProductErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
-import com.onmydesk.backend.product.ProductRepository;
 import com.onmydesk.backend.product.domain.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

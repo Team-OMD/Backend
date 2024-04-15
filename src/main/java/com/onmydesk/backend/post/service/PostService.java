@@ -36,7 +36,7 @@ public class PostService {
     private final PostMapper postMapper;
     private final MemberService memberService;
     private final ProductService productService;
-    private final ServiceValidator serviceValidator;
+    private final PostValidator postValidator;
     private final HeartRepository heartRepository;
     private final ProductRepository productRepository;
     private final PostProductRepository postProductRepository;
@@ -56,6 +56,7 @@ public class PostService {
         return post;
     }
 
+    // 게시글 목록 조회
     @Transactional(readOnly = true)
     public List<PostResponse> list(Integer page, Integer limit, Integer criteria) {
         String sortProperty = switch (criteria) {
@@ -86,7 +87,7 @@ public class PostService {
     @Transactional
     public PostResponse update(Long postId, PostRequest request) {
         Member member = memberService.getMember();
-        Post post = serviceValidator.validatePostOwnership(postId, member);
+        Post post = postValidator.validatePostOwnership(postId, member);
 
         // 요청된 상품들의 가격을 누적하여 전체 비용 계산
         int totalPrice = request.getProducts().stream()
@@ -130,7 +131,7 @@ public class PostService {
     // 게시글 삭제
     public void delete(Long postId) {
         Member member = memberService.getMember();
-        Post post = serviceValidator.validatePostOwnership(postId, member);
+        Post post = postValidator.validatePostOwnership(postId, member);
 
         //게시물과 연결된 모든 PostProduct를 가져온다.
         List<PostProduct> postProducts = postProductRepository.findByPostId(postId);
