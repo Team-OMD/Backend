@@ -5,13 +5,14 @@ import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.post.service.PostService;
 import com.onmydesk.backend.global.ApiResponse; // ApiResponse 클래스 임포트 필요
+import com.onmydesk.backend.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -20,11 +21,23 @@ public class PostController {
 
     private final PostService postService;
     private final ApiResponse apiResponse;
+    private final S3Uploader s3Uploader;
 
     // 게시글 생성
     @PostMapping("/posts")
-    public ResponseEntity<?> createPost(@RequestBody PostRequest request) {
-        Post post = postService.save(request);
+    public ResponseEntity<?> createPost(@RequestPart("request") PostRequest request,
+                                        @RequestPart(value = "file", required = false) MultipartFile file) {
+        String fileName = null;
+        if (file != null && !file.isEmpty()) {
+            try {
+                fileName = s3Uploader.upload(file, "images");
+                System.out.println("Uploaded file name: " + fileName);
+            } catch (Exception e) {
+                return apiResponse.error("파일 업로드 실패", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        Post post = postService.save(request, fileName);  // DB 저장 로직은 파일명을 포함하도록 수정 필요
         return apiResponse.success("게시글 생성 성공", HttpStatus.CREATED);
     }
 

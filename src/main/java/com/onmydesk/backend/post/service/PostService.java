@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.onmydesk.backend.post.domain.QPost.post;
+
 @RequiredArgsConstructor
 @Service
 public class PostService {
@@ -29,9 +31,11 @@ public class PostService {
 
     // 게시글 생성
     @Transactional
-    public Post save(PostRequest request) {
+    public Post save(PostRequest request, String fileName) {
         Member member = memberService.getMember();
-        return postRepository.save(postMapper.toEntity(request, member));
+        Post post = postMapper.toEntity(request, member);
+
+        return postRepository.save(post);
     }
 
     // 게시글 목록 조회
