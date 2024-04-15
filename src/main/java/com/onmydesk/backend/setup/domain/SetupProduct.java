@@ -1,4 +1,4 @@
-package com.onmydesk.backend.post.domain;
+package com.onmydesk.backend.setup.domain;
 
 import com.onmydesk.backend.global.BaseEntity;
 import com.onmydesk.backend.product.domain.Product;
@@ -13,20 +13,20 @@ import org.hibernate.annotations.Where;
 @AllArgsConstructor
 @Builder
 @Where(clause = "is_deleted = false")
-@SQLDelete(sql = "UPDATE post_product SET is_deleted = true WHERE post_product_id=?")
-public class PostProduct extends BaseEntity {
+@SQLDelete(sql = "UPDATE setup_product SET is_deleted = true WHERE setup_product_id=?")
+public class SetupProduct extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_product_id")
+    @Column(name = "setup_product_id", updatable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name="setup_id", updatable = false)
+    private Setup setup;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @JoinColumn(name="product_id", updatable = false)
+    private Product product;
 
 }

@@ -8,13 +8,16 @@ import com.onmydesk.backend.member.domain.Member;
 import com.onmydesk.backend.member.service.MemberService;
 import com.onmydesk.backend.post.domain.Post;
 import com.onmydesk.backend.post.domain.PostProduct;
+import com.onmydesk.backend.post.dto.PostAndProductResponse;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.post.mapper.PostMapper;
 import com.onmydesk.backend.post.repository.PostProductRepository;
 import com.onmydesk.backend.post.repository.PostRepository;
 import com.onmydesk.backend.product.domain.Product;
+import com.onmydesk.backend.product.dto.ProductInfoResponse;
 import com.onmydesk.backend.product.dto.ProductRequest;
+import com.onmydesk.backend.product.mapper.ProductMapper;
 import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,7 @@ import java.util.stream.Collectors;
 public class PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
+    private final ProductMapper productMapper;
     private final MemberService memberService;
     private final ProductService productService;
     private final PostValidator postValidator;
@@ -76,11 +80,27 @@ public class PostService {
 
     // 게시글 단일 조회
     @Transactional
-    public PostResponse find(Long postId) {
+    public PostAndProductResponse find(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RestApiException(PostErrorCode.POST_NOT_FOUND));
         postRepository.addViewCount(post);
-        return postMapper.toResponse(post);
+
+        List<PostProduct> postProducts = postProductRepository.findByPostId(postId);
+
+        List<Product> products = postProducts.stream()
+                .map(PostProduct::getProduct)
+                .collect(Collectors.toList());
+
+        List<ProductInfoResponse> productInfoResponses = products.stream()
+                .map(productMapper::toInfoResponse)
+                .collect(Collectors.toList());
+
+        PostResponse postResponse = postMapper.toResponse(post);
+
+        return PostAndProductResponse.builder()
+                .post(postResponse)
+                .products(productInfoResponses)
+                .build();
     }
 
     // 게시글 업데이트

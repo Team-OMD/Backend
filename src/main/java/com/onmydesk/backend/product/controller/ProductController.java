@@ -1,8 +1,7 @@
 package com.onmydesk.backend.product.controller;
 
 import com.onmydesk.backend.global.ApiResponse;
-import com.onmydesk.backend.product.domain.Product;
-import com.onmydesk.backend.product.dto.ProductListResponse;
+import com.onmydesk.backend.product.dto.ProductAndPageResponse;
 import com.onmydesk.backend.product.dto.ProductResponse;
 import com.onmydesk.backend.product.service.ProductSearchService;
 import com.onmydesk.backend.product.service.ProductService;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,12 +29,9 @@ public class ProductController {
     @GetMapping("/products")
     @Operation(summary = "상품 목록 조회", description = "상품의 전체 목록을 조회한다.")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
-    public ResponseEntity<?> getProducts() {
-        List<Product> products = productService.getList();
-        List<ProductListResponse> productListResponses = products.stream()
-                .map(ProductListResponse::new)
-                .collect(Collectors.toList());
-        return apiResponse.success("상품 목록 조회 성공", productListResponses,HttpStatus.OK);
+    public ResponseEntity<?> getProducts(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer limit) {
+        List<ProductResponse> productResponses = productService.getList(page, limit);
+        return apiResponse.success("상품 목록 조회 성공", productResponses,HttpStatus.OK);
     }
 
     // 상품 개별 조회
@@ -44,8 +39,8 @@ public class ProductController {
     @Operation(summary = "상품 개별 조회", description = "상품의 상세 정보를 조회한다.")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
     public ResponseEntity<?> findProduct(@PathVariable Long productId) {
-        Product product = productService.getFind(productId);
-        return apiResponse.success("개별 상품 조회 성공", new ProductResponse(product), HttpStatus.OK);
+        ProductAndPageResponse productAndPageResponse = productService.getFind(productId);
+        return apiResponse.success("개별 상품 조회 성공", productAndPageResponse, HttpStatus.OK);
     }
 
     // 상품 검색
