@@ -5,6 +5,7 @@ import com.onmydesk.backend.jwt.JwtFilter;
 import com.onmydesk.backend.jwt.TokenProvider;
 import com.onmydesk.backend.member.dto.*;
 import com.onmydesk.backend.member.service.MemberService;
+import com.onmydesk.backend.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +30,7 @@ public class MemberController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberService memberService;
+    private final PostService postService;
     private final ApiResponse apiResponse; // ApiResponse 주입
 
     @PostMapping("/signup")
@@ -83,5 +85,13 @@ public class MemberController {
     public ResponseEntity<?> delete() {
         memberService.delete();
         return apiResponse.success("회원 탈퇴 성공", HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/user/posts/hearts")
+    @PreAuthorize("hasAnyRole('USER')")
+    @Operation(summary = "좋아요한 게시물 조회", description = "좋아요한 게시물 목록을 조회한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
+    public ResponseEntity<?> getMyHeartPost() {
+        return apiResponse.success("좋아요한 게시물 조회 성공", postService.getHeartPost(), HttpStatus.OK);
     }
 }
