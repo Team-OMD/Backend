@@ -16,6 +16,7 @@ public class PostResponse {
     private final int heartCount;
     private final int viewCount;
     private final int totalPrice;
+    private final boolean isLiked;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
     private final LocalDateTime createdAt;

@@ -39,7 +39,7 @@ public class PostMapper {
                 .build();
     }
 
-    public PostResponse toResponse(Post post) {
+    public PostResponse toResponse(Post post, boolean isLiked) {
 
         // 회원 정보
         Member member = post.getMember();
@@ -54,6 +54,7 @@ public class PostMapper {
                 .totalPrice(post.getTotalPrice())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .isLiked(isLiked)
                 .build();
     }
 }
