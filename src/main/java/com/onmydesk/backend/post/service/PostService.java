@@ -134,6 +134,7 @@ public class PostService {
     public PostResponse update(Long postId, PostRequest request) {
         Member member = memberService.getMember();
         Post post = postValidator.validatePostOwnership(postId, member);
+        boolean isLiked = heartRepository.findByMemberAndPost(member, post).isPresent();
 
         // 요청된 상품들의 가격을 누적하여 전체 비용 계산
         int totalPrice = request.getProducts().stream()
@@ -170,7 +171,7 @@ public class PostService {
             }
         });
       
-        return postMapper.toResponse(post);
+        return postMapper.toResponse(post, isLiked);
     }
 
 
