@@ -10,8 +10,8 @@ import java.util.List;
 @Builder
 public class PostAndProductResponse {
 
-    private PostResponse post;
-    private List<ProductInfoResponse> products;
+    private final PostResponse post;
+    private final List<ProductInfoResponse> products;
 
     public PostAndProductResponse(PostResponse postResponse, List<ProductInfoResponse> productInfoResponses) {
         this.post = postResponse;
