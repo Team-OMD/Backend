@@ -18,4 +18,8 @@ public class ProductResponse {
     private final String category2;
     private final String category3;
     private final String category4;
+    private final int postCount;
+    private final int wishCount;
+    private final int viewCount;
+    private final boolean isWished;
 }
