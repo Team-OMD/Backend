@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,6 +56,7 @@ public class PostService {
         // ProductRequest 리스트를 순회하며 각 상품 처리
         for (ProductRequest productRequest : request.getProducts()) {
             Product product = productService.saveProduct(productRequest);
+            productRepository.addPostCount(product);
             postProductRepository.save(postMapper.toPostProductEntity(post, product));
         }
         return post;
@@ -148,26 +150,34 @@ public class PostService {
                 .map(ProductRequest::getProductCode)
                 .collect(Collectors.toSet());
 
-        // 필요없는 PostProduct 삭제
+        // 기존 PostProduct 중 삭제되어야 할 항목 식별 및 처리
         post.getPostProducts().removeIf(postProduct -> {
             boolean toBeDeleted = !requestedProductCodes.contains(postProduct.getProduct().getProductCode());
             if (toBeDeleted) {
+                productRepository.subPostCount(postProduct.getProduct());
                 postProductRepository.delete(postProduct);
             }
             return toBeDeleted;
         });
 
-        // 새로운 상품 및 페이지 처리
+        // 새로운 상품 처리
         request.getProducts().forEach(productRequest -> {
-            Product product = productService.saveProduct(productRequest);
-
-            // 게시글과 상품 연결
-            boolean isProductLinked = post.getPostProducts().stream()
-                    .anyMatch(pp -> pp.getProduct().getProductCode().equals(product.getProductCode()));
-
-            if (!isProductLinked) {
-                PostProduct postProduct = postMapper.toPostProductEntity(post, product);
-                postProductRepository.save(postProduct);
+            Optional<Product> existingProductOptional = productRepository.findByProductCode(productRequest.getProductCode());
+            if (existingProductOptional.isEmpty()) {
+                // 새 상품 저장 및 postCount 증가
+                Product newProduct = productService.saveProduct(productRequest);
+                productRepository.addPostCount(newProduct);
+                postProductRepository.save(postMapper.toPostProductEntity(post, newProduct));
+            } else {
+                // 기존 상품 객체 추출
+                Product existingProduct = existingProductOptional.get();
+                // 기존 상품이 새로 연결되었는지 확인
+                boolean isNewLink = post.getPostProducts().stream()
+                        .noneMatch(pp -> pp.getProduct().getProductCode().equals(existingProduct.getProductCode()));
+                if (isNewLink) {
+                    productRepository.addPostCount(existingProduct);
+                    postProductRepository.save(postMapper.toPostProductEntity(post, existingProduct));
+                }
             }
         });
       
@@ -182,12 +192,12 @@ public class PostService {
 
         //게시물과 연결된 모든 PostProduct를 가져온다.
         List<PostProduct> postProducts = postProductRepository.findByPostId(postId);
-        // PostProduct의 ID 목록을 가져온다.
-        List<Long> productIds = postProducts.stream()
-                .map(postProduct -> postProduct.getProduct().getId())
-                .collect(Collectors.toList());
+        for (PostProduct postProduct : postProducts) {
+            Product product = postProduct.getProduct();
+            productRepository.subPostCount(product); // 상품의 postCount 감소
+        }
 
-        for (Long productId : productIds) {
+        for (Long productId : postProducts.stream().map(postProduct -> postProduct.getProduct().getId()).toList()) {
             long count = postProductRepository.countByProductId(productId);
             if (count <= 1) {
                 // 다른 게시물에 연결된 제품이 없으면 제품 삭제
