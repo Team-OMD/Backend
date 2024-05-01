@@ -35,7 +35,7 @@ public class PostController {
 
     // 게시글 목록 조회
     @GetMapping("/posts")
-    @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 조회한다.")
+    @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 조회한다. criteria: 1.생성일 2.좋아요 3.조회수")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
     public ResponseEntity<?> getList(
             @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "1") Integer criteria
