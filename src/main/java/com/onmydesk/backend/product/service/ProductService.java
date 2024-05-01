@@ -1,5 +1,7 @@
 package com.onmydesk.backend.product.service;
 
+import com.onmydesk.backend.member.domain.Member;
+import com.onmydesk.backend.member.service.MemberService;
 import com.onmydesk.backend.product.dto.*;
 import com.onmydesk.backend.product.mapper.PageMapper;
 import com.onmydesk.backend.product.mapper.ProductMapper;
@@ -9,9 +11,11 @@ import com.onmydesk.backend.error.errorcode.ProductErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.product.domain.Product;
 import com.onmydesk.backend.product.domain.Page;
+import com.onmydesk.backend.wish.repository.WishRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,17 +28,39 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final PageRepository pageRepository;
+    private final WishRepository wishRepository;
+    private final MemberService memberService;
     private final ProductMapper productMapper;
     private final PageMapper pageMapper;
 
     // 상품 목록 조회
-    public List<ProductResponse> getList(Integer page, Integer limit) {
-        Pageable pageable = PageRequest.of(page - 1, limit);
-        org.springframework.data.domain.Page<Product> products = productRepository.findAll(pageable);
+    public List<ProductResponse> getList(Integer page, Integer limit, Integer criteria) {
+        String sortProperty = switch (criteria) {
+            case 1 -> "postCount";
+            case 2 -> "wishCount";
+            case 3 -> "viewCount";
+            default -> throw new IllegalArgumentException();
+        };
 
-        return products.stream()
-                .map(productMapper::toResponse)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.Direction.DESC, sortProperty);
+        org.springframework.data.domain.Page<Product> productPage = productRepository.findAll(pageable);
+
+        // 로그인 되어 있으면 목록에서 유저가 찜 눌렀는지 여부 추가
+        try {
+            Member member = memberService.getMember();
+            return productPage.stream()
+                    .map(product -> {
+                        boolean isWished = wishRepository.findByMemberAndProduct(member, product).isPresent();
+                        return productMapper.toResponse(product, isWished);
+                    })
+                    .collect(Collectors.toList());
+
+            // 인증 실패 시 전부 누르지 않은 것으로 처리
+        } catch (Exception e) {
+            return productPage.stream()
+                    .map(product -> productMapper.toResponse(product, false))
+                    .collect(Collectors.toList());
+        }
     }
 
     // 상품 개별 조회
@@ -42,20 +68,33 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
+        productRepository.addViewCount(product);
+
         List<Page> pages = pageRepository.findByProductId(productId);
 
         List<PageResponse> pageResponses = pages.stream()
                 .map(pageMapper::toResponse)
                 .collect(Collectors.toList());
 
-        ProductResponse productResponse = productMapper.toResponse(product);
+        try {
+            Member member = memberService.getMember();
+            boolean isWished = wishRepository.findByMemberAndProduct(member, product).isPresent();
+            ProductResponse productResponse = productMapper.toResponse(product, isWished);
 
+            return ProductAndPageResponse.builder()
+                    .product(productResponse)
+                    .pages(pageResponses)
+                    .build();
+        } catch (Exception e) {
+            ProductResponse productResponse = productMapper.toResponse(product, false);
 
-        return ProductAndPageResponse.builder()
-                .product(productResponse)
-                .pages(pageResponses)
-                .build();
+            return ProductAndPageResponse.builder()
+                    .product(productResponse)
+                    .pages(pageResponses)
+                    .build();
+        }
     }
+
     // 상품 저장
     @Transactional
     public Product saveProduct(ProductRequest productRequest) {
