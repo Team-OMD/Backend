@@ -109,12 +109,24 @@ public class PostService {
                 .map(productMapper::toInfoResponse)
                 .collect(Collectors.toList());
 
-        PostResponse postResponse = postMapper.toResponse(post);
+        try {
+            Member member = memberService.getMember();
+            boolean isLiked = heartRepository.findByMemberAndPost(member, post).isPresent();
+            PostResponse postResponse = postMapper.toResponse(post, isLiked);
 
-        return PostAndProductResponse.builder()
-                .post(postResponse)
-                .products(productInfoResponses)
-                .build();
+            return PostAndProductResponse.builder()
+                    .post(postResponse)
+                    .products(productInfoResponses)
+                    .build();
+
+        } catch (Exception e) {
+            PostResponse postResponse = postMapper.toResponse(post, false);
+
+            return PostAndProductResponse.builder()
+                    .post(postResponse)
+                    .products(productInfoResponses)
+                    .build();
+        }
     }
 
     // 게시글 업데이트
