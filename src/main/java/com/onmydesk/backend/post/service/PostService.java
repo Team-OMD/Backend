@@ -203,6 +203,8 @@ public class PostService {
         Member member = memberService.getMember();
         List<Heart> heart = heartRepository.findAllByMember(member);
         List<Post> posts = heart.stream().map(postRepository::findByHeart).toList();
-        return posts.stream().map(postMapper::toResponse).collect(Collectors.toList());
+        return posts.stream()
+                .map(post -> postMapper.toResponse(post, true))
+                .collect(Collectors.toList());
     }
 }
