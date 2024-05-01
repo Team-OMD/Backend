@@ -73,9 +73,23 @@ public class PostService {
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.Direction.DESC, sortProperty);
 
         Page<Post> postPage = postRepository.findAll(pageable);
-        return postPage.stream()
-                .map(postMapper::toResponse)
-                .collect(Collectors.toList());
+
+        // 로그인 되어 있으면 목록에서 유저가 좋아요 눌렀는지 여부 추가
+        try {
+            Member member = memberService.getMember();
+            return postPage.stream()
+                    .map(post -> {
+                        boolean isLiked = heartRepository.findByMemberAndPost(member, post).isPresent();
+                        return postMapper.toResponse(post, isLiked);
+                    })
+                    .collect(Collectors.toList());
+
+        // 인증 실패 시 전부 누르지 않은 것으로 처리
+        } catch (Exception e) {
+            return postPage.stream()
+                    .map(post -> postMapper.toResponse(post, false))
+                    .collect(Collectors.toList());
+        }
     }
 
     // 게시글 단일 조회
