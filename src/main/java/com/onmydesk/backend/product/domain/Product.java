@@ -53,6 +53,15 @@ public class Product extends BaseEntity {
     @Column(length = 20)
     private String category4;
 
+    @Column(name = "post_count", nullable = false)
+    private int postCount;
+
+    @Column(name = "wish_count", nullable = false)
+    private int wishCount;
+
+    @Column(name = "view_count", nullable = false)
+    private int viewCount;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
     private List<Page> pages = new ArrayList<>();
 }

@@ -27,10 +27,10 @@ public class ProductController {
 
     // 상품 목록 조회
     @GetMapping("/products")
-    @Operation(summary = "상품 목록 조회", description = "상품의 전체 목록을 조회한다.")
+    @Operation(summary = "상품 목록 조회", description = "상품의 전체 목록을 조회한다. criteria: 1.게시글에 등록된 횟수 2.좋아요 3.조회수")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
-    public ResponseEntity<?> getProducts(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer limit) {
-        List<ProductResponse> productResponses = productService.getList(page, limit);
+    public ResponseEntity<?> getProducts(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "1") Integer criteria) {
+        List<ProductResponse> productResponses = productService.getList(page, limit, criteria);
         return apiResponse.success("상품 목록 조회 성공", productResponses,HttpStatus.OK);
     }
 
