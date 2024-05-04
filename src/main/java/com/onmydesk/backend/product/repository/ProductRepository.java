@@ -1,6 +1,7 @@
 package com.onmydesk.backend.product.repository;
 
 import com.onmydesk.backend.product.domain.Product;
+import com.onmydesk.backend.wish.domain.Wish;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -43,6 +44,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Transactional
     @Query("update Product p set p.viewCount = p.viewCount + 1 where p = :product")
     void addViewCount(Product product);
+
+    Product findByWish(Wish wish);
 
     Optional<Product> findByProductCode(String productCode);
 
