@@ -6,6 +6,7 @@ import com.onmydesk.backend.jwt.TokenProvider;
 import com.onmydesk.backend.member.dto.*;
 import com.onmydesk.backend.member.service.MemberService;
 import com.onmydesk.backend.post.service.PostService;
+import com.onmydesk.backend.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +32,7 @@ public class MemberController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberService memberService;
     private final PostService postService;
+    private final ProductService productService;
     private final ApiResponse apiResponse; // ApiResponse 주입
 
     @PostMapping("/signup")
@@ -93,5 +95,13 @@ public class MemberController {
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
     public ResponseEntity<?> getMyHeartPost() {
         return apiResponse.success("좋아요한 게시물 조회 성공", postService.getHeartPost(), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/products/wishes")
+    @PreAuthorize("hasAnyRole('USER')")
+    @Operation(summary = "찜한 상품 조회", description = "찜한 상품을 조회한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
+    public ResponseEntity<?> getMyWishProduct() {
+        return apiResponse.success("찜한 상품 조회 성공", productService.getWishProduct(), HttpStatus.OK);
     }
 }
