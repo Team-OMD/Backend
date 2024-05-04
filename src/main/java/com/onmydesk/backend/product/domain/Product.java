@@ -1,6 +1,7 @@
 package com.onmydesk.backend.product.domain;
 
 import com.onmydesk.backend.global.BaseEntity;
+import com.onmydesk.backend.wish.domain.Wish;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -64,4 +65,7 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
     private List<Page> pages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product")
+    private List<Wish> wish;
 }
