@@ -11,6 +11,7 @@ import com.onmydesk.backend.error.errorcode.ProductErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.product.domain.Product;
 import com.onmydesk.backend.product.domain.Page;
+import com.onmydesk.backend.wish.domain.Wish;
 import com.onmydesk.backend.wish.repository.WishRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -108,5 +109,15 @@ public class ProductService {
                     }
                     return product;
                 });
+    }
+
+    // 찜한 상품 조회
+    public List<ProductResponse> getWishProduct() {
+        Member member = memberService.getMember();
+        List<Wish> wish = wishRepository.findAllByMember(member);
+        List<Product> products = wish.stream().map(productRepository::findByWish).toList();
+        return products.stream()
+                .map(product -> productMapper.toResponse(product, true))
+                .collect(Collectors.toList());
     }
 }
