@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     working_dir: /app
-    container_name: spring
+    container_name: deploy
     environment:
       SPRING_DATASOURCE_URL: ${RDS_URL}
       SPRING_DATASOURCE_USERNAME: ${RDS_USERNAME}

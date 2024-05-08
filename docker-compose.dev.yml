@@ -20,7 +20,7 @@ services:
       context: .
       dockerfile: Dockerfile
     working_dir: /app
-    container_name: backend
+    container_name: develop
     depends_on:
       - mysql
     environment:
