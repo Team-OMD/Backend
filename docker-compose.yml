@@ -27,6 +27,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:${DB_PORT}/${DB_NAME}?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      CLOUD_AWS_CREDENTIALS_ACCESS_KEY: ${S3_ACCESS_KEY}  # AWS Access Key
+      CLOUD_AWS_CREDENTIALS_SECRET_KEY: ${S3_SECRET_KEY}  # AWS Secret Key
+      CLOUD_AWS_REGION_STATIC: ap-northeast-2  # AWS Region, 예: ap-northeast-2
+      CLOUD_AWS_S3_BUCKET: onmydesk  # AWS S3 Bucket Name
       naver.api.client.id: ${NAVER_API_CLIENT_ID}
       naver.api.client.secret: ${NAVER_API_CLIENT_SECRET}
     ports:
