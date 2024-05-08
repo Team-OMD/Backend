@@ -9,14 +9,10 @@ spring:
 #      username: sa
 #      password:
 #      driver-class-name: org.h2.Driver
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-#    RDS 설정
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: ${RDS_URL}
-#    username: ${RDS_USERNAME}
-#    password: ${RDS_PASSWORD}
 
 
   jpa:

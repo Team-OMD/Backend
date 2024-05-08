@@ -9,9 +9,9 @@ services:
     working_dir: /app
     container_name: deploy
     environment:
-      SPRING_DATASOURCE_URL: ${RDS_URL}
-      SPRING_DATASOURCE_USERNAME: ${RDS_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${RDS_PASSWORD}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       naver.api.client.id: ${NAVER_API_CLIENT_ID}
       naver.api.client.secret: ${NAVER_API_CLIENT_SECRET}
     ports:
