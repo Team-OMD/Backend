@@ -9,12 +9,17 @@ import com.onmydesk.backend.product.domain.Product;
 import com.onmydesk.backend.product.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import com.onmydesk.backend.s3.domain.Image;
+
+
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class PostMapper {
 
     private final ProductMapper productMapper;
+
 
     public Post toPostEntity(PostRequest request, Member member) {
 
@@ -55,6 +60,8 @@ public class PostMapper {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .isLiked(isLiked)
+                .thumbnailUrl(post.getThumbnailImage() != null ? post.getThumbnailImage().getUrl() : null)
+                .imageUrls(post.getImages().stream().map(Image::getUrl).collect(Collectors.toList()))
                 .build();
     }
 }

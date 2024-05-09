@@ -20,6 +20,9 @@ import com.onmydesk.backend.product.dto.ProductRequest;
 import com.onmydesk.backend.product.mapper.ProductMapper;
 import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.product.service.ProductService;
+import com.onmydesk.backend.s3.S3Uploader;
+import com.onmydesk.backend.s3.domain.Image;
+import com.onmydesk.backend.s3.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +49,7 @@ public class PostService {
     private final HeartRepository heartRepository;
     private final ProductRepository productRepository;
     private final PostProductRepository postProductRepository;
+    private final ImageRepository imageRepository;
 
 
     // 게시글 생성
@@ -59,6 +64,21 @@ public class PostService {
             productRepository.addPostCount(product);
             postProductRepository.save(postMapper.toPostProductEntity(post, product));
         }
+
+        if (request.getThumbnailImageId() != null) {
+            // 썸네일로 지정된 이미지 처리
+            Image thumbnailImage = imageRepository.findById(request.getThumbnailImageId())
+                    .orElseThrow(() -> new IllegalArgumentException("헤딩 썸네일 이미지 ID가 존재하지 않습니다."));
+            post.setThumbnailImage(thumbnailImage);
+        }
+
+        // 기타 로직, 예를 들어 게시글과 이미지 연결 처리
+        for (Long imageId : request.getImageIds()) {
+            Image image = imageRepository.findById(imageId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 이미지 ID가 존재하지 않습니다."));
+            post.addImage(image);
+        }
+
         return post;
     }
 

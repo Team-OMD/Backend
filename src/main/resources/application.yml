@@ -3,7 +3,7 @@ spring:
 #  h2:
 #    console:
 #      enabled: true
-#
+
   datasource:
 #      url:  jdbc:h2:tcp://localhost/~/test
 #      username: sa
@@ -33,10 +33,32 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
 
+server:
+  tomcat:
+    max-http-form-post-size: 10MB
+
+servlet:
+  multipart:
+    max-file-size: 20MB
+    max-request-size: 20MB
+
 logging:
   level:
     org.hibernate.SQL: TRACE # SQL 로그 레벨을 INFO로 조정
     org.hibernate.type: TRACE # 바인딩된 파라미터에 대한 자세한 로깅을 위해
+
+cloud:
+  aws:
+    s3:
+      bucket: onmydesk
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
 
 jwt:
   header: Authorization

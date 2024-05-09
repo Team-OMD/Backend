@@ -5,6 +5,7 @@ import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.post.service.PostService;
 import com.onmydesk.backend.global.ApiResponse;
+import com.onmydesk.backend.s3.S3Uploader;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,11 +26,12 @@ public class PostController {
     private final PostService postService;
     private final ApiResponse apiResponse;
 
+
     // 게시글 생성
     @PostMapping("/posts")
     @Operation(summary = "게시글 생성", description = "새로운 게시글을 생성한다.")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성"))
-    public ResponseEntity<?> createPost(@RequestBody PostRequest request) {
+    public ResponseEntity<?> createPost(@RequestPart("request") PostRequest request) {
         postService.savePost(request);
         return apiResponse.success("게시글 생성 성공", HttpStatus.CREATED);
     }

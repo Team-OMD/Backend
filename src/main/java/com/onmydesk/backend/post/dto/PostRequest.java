@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,5 +25,8 @@ public class PostRequest {
     private String content;
 
     private List<ProductRequest> products;
+
+    private List<Long> imageIds;
+    private Long thumbnailImageId; // 썸네일로 지정된 이미지 ID
 
 }
