@@ -4,6 +4,9 @@ import com.onmydesk.backend.global.ApiResponse;
 import com.onmydesk.backend.s3.S3Uploader;
 import com.onmydesk.backend.s3.domain.Image;
 import com.onmydesk.backend.s3.repository.ImageRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/images")
+@Tag(name = "이미지 업로드", description = "이미지 업로드 API")
 public class ImageController {
 
     private final S3Uploader s3Uploader;
@@ -26,7 +30,10 @@ public class ImageController {
     private final ApiResponse apiResponse;
 
 
+
     @PostMapping("/upload")
+    @Operation(summary = "이미지 업로드", description = "이미지는 S3에 업로드한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성"))
     public ResponseEntity<Object> uploadImage(@RequestParam("images") List<MultipartFile> multipartFiles) {
         List<Image> uploadedImages = new ArrayList<>();
         try {
