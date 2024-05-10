@@ -1,6 +1,15 @@
 version: '3'
 
 services:
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - omd
+
   backend:
     platform: linux/amd64
     build:
@@ -8,6 +17,8 @@ services:
       dockerfile: Dockerfile
     working_dir: /app
     container_name: deploy
+    depends_on:
+      - redis
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
