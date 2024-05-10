@@ -10,7 +10,7 @@ spring:
 #      password:
 #      driver-class-name: org.h2.Driver
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL}
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
@@ -32,6 +32,14 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
+
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      ssl:
+        enabled: true
 
 server:
   tomcat:
