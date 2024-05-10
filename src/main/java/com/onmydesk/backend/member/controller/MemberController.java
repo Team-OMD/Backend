@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
@@ -33,7 +36,8 @@ public class MemberController {
     private final MemberService memberService;
     private final PostService postService;
     private final ProductService productService;
-    private final ApiResponse apiResponse; // ApiResponse 주입
+    private final ApiResponse apiResponse;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "회원이 회원가입을 한다.")
@@ -53,13 +57,25 @@ public class MemberController {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = tokenProvider.createToken(authentication);
+        TokenResponseDto token = tokenProvider.createToken(authentication);
+        String jwt = token.getAccessToken();
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
 
-        TokenDto tokenDto = new TokenDto(jwt);
-        return apiResponse.success("로그인 성공", tokenDto, HttpStatus.OK);
+        redisTemplate.opsForValue().set(authentication.getName(), token.getRefreshToken(),
+                token.getRefreshTokenValidationTime(), TimeUnit.MICROSECONDS);
+
+
+        return apiResponse.success("로그인 성공", token, HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "회원이 로그아웃을 한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
+    public ResponseEntity<?> logout(@RequestBody TokenRequestDto request) {
+        memberService.logout(request);
+        return apiResponse.success("로그아웃 완료", HttpStatus.OK);
     }
 
     @GetMapping("/user")

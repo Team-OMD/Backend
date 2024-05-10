@@ -2,14 +2,19 @@ package com.onmydesk.backend.member.service;
 
 import com.onmydesk.backend.error.errorcode.MemberErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
+import com.onmydesk.backend.jwt.TokenProvider;
 import com.onmydesk.backend.member.domain.Member;
 import com.onmydesk.backend.member.dto.*;
 import com.onmydesk.backend.member.mapper.MemberMapper;
 import com.onmydesk.backend.member.repository.MemberRepository;
-import com.onmydesk.backend.security.config.SecurityUtil;
+import com.onmydesk.backend.config.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -17,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final MemberMapper memberMapper;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final TokenProvider tokenProvider;
 
     @Transactional
     public MemberResponse signup(MemberRequest request) {
@@ -33,6 +40,24 @@ public class MemberService {
 
         return memberMapper.toResponse(memberRepository.save(member));
     }
+
+    @Transactional
+    public void logout(TokenRequestDto tokenRequestDto) {
+        if (!tokenProvider.validateToken(tokenRequestDto.getAccessToken())) {
+            throw new IllegalArgumentException("로그아웃 : 유효하지 않은 토큰입니다.");
+        }
+
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
+
+        if (redisTemplate.opsForValue().get(authentication.getName()) != null) {
+            redisTemplate.delete(authentication.getName());
+        }
+
+
+        Long expiration = tokenProvider.getExpiration(tokenRequestDto.getAccessToken());
+        redisTemplate.opsForValue().set(tokenRequestDto.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+    }
+
 
     @Transactional(readOnly = true)
     public MemberResponse getMyMemberWithAuthorities() {
