@@ -1,4 +1,4 @@
-package com.onmydesk.backend.security.config;
+package com.onmydesk.backend.config.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

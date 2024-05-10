@@ -1,4 +1,4 @@
-package com.onmydesk.backend.security.config;
+package com.onmydesk.backend.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
