@@ -31,7 +31,7 @@ public class PostController {
     @PostMapping("/posts")
     @Operation(summary = "게시글 생성", description = "새로운 게시글을 생성한다.")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성"))
-    public ResponseEntity<?> createPost(@RequestPart("request") PostRequest request) {
+    public ResponseEntity<?> createPost(@RequestBody PostRequest request) {
         postService.savePost(request);
         return apiResponse.success("게시글 생성 성공", HttpStatus.CREATED);
     }
