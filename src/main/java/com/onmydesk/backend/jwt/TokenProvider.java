@@ -1,5 +1,6 @@
 package com.onmydesk.backend.jwt;
 
+import com.onmydesk.backend.member.dto.TokenResponseDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -28,6 +29,7 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
     private final String secret;
     private final long tokenValidityInMilliseconds;
+    private final long refreshTokenValidationTime;
     private Key key;
 
     public TokenProvider(
@@ -35,6 +37,7 @@ public class TokenProvider implements InitializingBean {
             @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.refreshTokenValidationTime = tokenValidityInSeconds * 2 * 1000;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(Authentication authentication) {
+    public TokenResponseDto createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -51,12 +54,24 @@ public class TokenProvider implements InitializingBean {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
-        return Jwts.builder()
+        String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
+
+        String refreshToken = Jwts.builder()
+                .setExpiration(new Date(now + refreshTokenValidationTime))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+        return TokenResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .accessTokenValidationTime(tokenValidityInMilliseconds)
+                .refreshTokenValidationTime(refreshTokenValidationTime)
+                .build();
     }
 
     public Authentication getAuthentication(String token) {
@@ -112,5 +127,12 @@ public class TokenProvider implements InitializingBean {
             logger.info("토큰이 잘못되었습니다.");
         }
         return false;
+    }
+    public Long getExpiration(String accessToken) {
+        // accessToken 유효시간
+        Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody().getExpiration();
+        // 현재 시간
+        long now = new Date().getTime();
+        return (expiration.getTime() - now);
     }
 }
