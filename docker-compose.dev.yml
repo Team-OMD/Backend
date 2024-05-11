@@ -1,6 +1,15 @@
 version: '3'
 
 services:
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - omd
+
   mysql:
     image: mysql
     container_name: mysql
@@ -9,6 +18,8 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/data.sql
     ports:
       - "3307:3306"
     networks:
@@ -16,15 +27,18 @@ services:
     restart: always
 
   backend:
+    env_file:
+      - .env
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     working_dir: /app
     container_name: develop
     depends_on:
+      - redis
       - mysql
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_URL: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       naver.api.client.id: ${NAVER_API_CLIENT_ID}
