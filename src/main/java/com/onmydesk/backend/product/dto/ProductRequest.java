@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -52,6 +50,4 @@ public class ProductRequest {
     @NotBlank
     @Schema(description = "카테고리4", nullable = false, example = "")
     private String category4;
-
-    private List<PageRequest> pages;
 }

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +32,7 @@ public class ProductService {
     private final PageRepository pageRepository;
     private final WishRepository wishRepository;
     private final MemberService memberService;
+    private final ProductSearchAndCrawlingService productSearchAndCrawlingService;
     private final ProductMapper productMapper;
     private final PageMapper pageMapper;
 
@@ -99,16 +101,22 @@ public class ProductService {
     // 상품 저장
     @Transactional
     public Product saveProduct(ProductRequest productRequest) {
-        return productRepository.findByProductCode(productRequest.getProductCode())
-                .orElseGet(() -> {
-                    Product product = productMapper.toProductEntity(productRequest);
-                    product = productRepository.save(product);
-                    for (com.onmydesk.backend.product.dto.PageRequest pageRequest : productRequest.getPages()) {
-                        Page page = pageMapper.toPageEntity(pageRequest, product);
-                        pageRepository.save(page);
-                    }
-                    return product;
-                });
+        // 기존에 동일한 productCode를 가진 상품이 있는지 확인
+        Optional<Product> existingProduct = productRepository.findByProductCode(productRequest.getProductCode());
+        if (existingProduct.isPresent()) {
+            // 기존 상품이 있으면 해당 상품을 반환
+            return existingProduct.get();
+        } else {
+            Product product = productMapper.toProductEntity(productRequest);
+            productRepository.save(product);
+            // 크롤링을 통해 페이지 정보 가져옴
+            List<Page> pages = productSearchAndCrawlingService.crawlPage(product);
+            for (Page page : pages) {
+                page.setProduct(product);
+                pageRepository.save(page);
+            }
+            return product;
+        }
     }
 
     // 찜한 상품 조회

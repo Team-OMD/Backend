@@ -63,7 +63,7 @@ public class Product extends BaseEntity {
     @Column(name = "view_count", nullable = false)
     private int viewCount;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Page> pages = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")

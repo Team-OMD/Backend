@@ -3,7 +3,7 @@ package com.onmydesk.backend.product.controller;
 import com.onmydesk.backend.global.ApiResponse;
 import com.onmydesk.backend.product.dto.ProductAndPageResponse;
 import com.onmydesk.backend.product.dto.ProductResponse;
-import com.onmydesk.backend.product.service.ProductSearchService;
+import com.onmydesk.backend.product.service.ProductSearchAndCrawlingService;
 import com.onmydesk.backend.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,7 +22,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final ProductSearchService productSearchService;
+    private final ProductSearchAndCrawlingService productSearchAndCrawlingService;
     private final ApiResponse apiResponse;
 
     // 상품 목록 조회
@@ -49,6 +49,6 @@ public class ProductController {
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
     public String searchProduct(@RequestParam(value = "query") String query,
                                 @RequestParam(value = "display", defaultValue = "10") int display) {
-        return productSearchService.searchProduct(query, display);
+        return productSearchAndCrawlingService.searchProduct(query, display);
     }
 }

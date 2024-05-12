@@ -21,6 +21,7 @@ public class Page extends BaseEntity {
     @Column(name = "page_id")
     private Long id;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     @JsonIgnore
@@ -29,7 +30,7 @@ public class Page extends BaseEntity {
     @Column(nullable = false)
     private int price;
 
-    @Column(length = 1000, nullable = false)
+    @Column(length = 1500, nullable = false)
     private String link;
 
     @Column(name = "store_name", length = 20, nullable = false)
