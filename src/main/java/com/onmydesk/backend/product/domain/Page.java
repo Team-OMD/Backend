@@ -30,7 +30,7 @@ public class Page extends BaseEntity {
     @Column(nullable = false)
     private int price;
 
-    @Column(length = 1500, nullable = false)
+    @Column(length = 2000, nullable = false)
     private String link;
 
     @Column(name = "store_name", length = 20, nullable = false)
