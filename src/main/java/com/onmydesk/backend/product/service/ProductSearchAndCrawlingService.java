@@ -63,7 +63,9 @@ public class ProductSearchAndCrawlingService {
                 JsonObject item = items.get(i).getAsJsonObject();
 
                 JsonObject product = new JsonObject();
-                product.addProperty("productName", item.get("title").getAsString());
+                // 상품 이름에서 HTML 태그 제거
+                String productName = item.get("title").getAsString().replaceAll("<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>", "");
+                product.addProperty("productName", productName);
                 product.addProperty("img", item.get("image").getAsString());
                 product.addProperty("productCode", item.get("productId").getAsString());
                 product.addProperty("lprice", item.get("lprice").getAsInt());
