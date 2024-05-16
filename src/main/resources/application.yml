@@ -50,14 +50,6 @@ server:
   tomcat:
     max-http-form-post-size: 10MB
 
-
-
-
-logging:
-  level:
-    org.hibernate.SQL: TRACE # SQL 로그 레벨을 INFO로 조정
-    org.hibernate.type: TRACE # 바인딩된 파라미터에 대한 자세한 로깅을 위해
-
 cloud:
   aws:
     s3:
