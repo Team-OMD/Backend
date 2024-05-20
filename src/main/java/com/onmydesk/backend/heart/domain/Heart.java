@@ -4,14 +4,12 @@ import com.onmydesk.backend.global.BaseEntity;
 import com.onmydesk.backend.member.domain.Member;
 import com.onmydesk.backend.post.domain.Post;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Getter
 @Entity
 public class Heart extends BaseEntity {
 

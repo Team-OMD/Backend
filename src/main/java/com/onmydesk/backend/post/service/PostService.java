@@ -231,8 +231,12 @@ public class PostService {
     // 좋아요 누른 게시물 조회
     public List<PostResponse> getHeartPost() {
         Member member = memberService.getMember();
-        List<Heart> heart = heartRepository.findAllByMember(member);
-        List<Post> posts = heart.stream().map(postRepository::findByHeart).toList();
+        List<Heart> hearts = heartRepository.findAllByMember(member);
+        List<Post> posts = hearts.stream()
+                .map(heart -> postRepository.findById(heart.getPost().getId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
         return posts.stream()
                 .map(post -> postMapper.toResponse(post, true))
                 .collect(Collectors.toList());

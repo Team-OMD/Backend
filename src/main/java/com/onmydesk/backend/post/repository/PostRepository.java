@@ -32,8 +32,6 @@ public interface PostRepository extends JpaRepository<Post, Long>{
     @Query("update Post p set p.viewCount = p.viewCount + 1 where p = :post")
     void addViewCount(Post post);
 
-    Post findByHeart(Heart heart);
-
     @Query("select p from Post p " +
             "join fetch p.member " +
             "left join fetch p.images " +
