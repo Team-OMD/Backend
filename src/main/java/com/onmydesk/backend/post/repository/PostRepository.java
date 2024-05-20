@@ -42,8 +42,7 @@ public interface PostRepository extends JpaRepository<Post, Long>{
             "where p.id = :postId")
     Optional<Post> findById(Long postId);
 
-    @Query("select distinct p from Post p " +
-            "join fetch p.member " +
-            "left join fetch p.thumbnailImage")
+    @Query("select p from Post p " +
+            "join fetch p.thumbnailImage")
     Page<Post> findAll(Pageable pageable);
 }
