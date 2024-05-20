@@ -3,6 +3,7 @@ package com.onmydesk.backend.post.mapper;
 import com.onmydesk.backend.member.domain.Member;
 import com.onmydesk.backend.post.domain.Post;
 import com.onmydesk.backend.post.domain.PostProduct;
+import com.onmydesk.backend.post.dto.PostPreviewResponse;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.product.domain.Product;
@@ -62,6 +63,20 @@ public class PostMapper {
                 .isLiked(isLiked)
                 .thumbnailUrl(post.getThumbnailImage() != null ? post.getThumbnailImage().getUrl() : null)
                 .imageUrls(post.getImages().stream().map(Image::getUrl).collect(Collectors.toList()))
+                .build();
+    }
+
+    public PostPreviewResponse toPreviewResponse(Post post, boolean isLiked) {
+
+        return PostPreviewResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .heartCount(post.getHeartCount())
+                .viewCount(post.getViewCount())
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .isLiked(isLiked)
+                .thumbnailUrl(post.getThumbnailImage() != null ? post.getThumbnailImage().getUrl() : null)
                 .build();
     }
 }

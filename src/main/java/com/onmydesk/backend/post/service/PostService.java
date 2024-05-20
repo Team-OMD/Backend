@@ -9,6 +9,7 @@ import com.onmydesk.backend.member.service.MemberService;
 import com.onmydesk.backend.post.domain.Post;
 import com.onmydesk.backend.post.domain.PostProduct;
 import com.onmydesk.backend.post.dto.PostAndProductResponse;
+import com.onmydesk.backend.post.dto.PostPreviewResponse;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.post.mapper.PostMapper;
@@ -20,7 +21,6 @@ import com.onmydesk.backend.product.dto.ProductRequest;
 import com.onmydesk.backend.product.mapper.ProductMapper;
 import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.product.service.ProductService;
-import com.onmydesk.backend.s3.S3Uploader;
 import com.onmydesk.backend.s3.domain.Image;
 import com.onmydesk.backend.s3.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -84,7 +83,7 @@ public class PostService {
 
     // 게시글 목록 조회
     @Transactional(readOnly = true)
-    public List<PostResponse> list(Integer page, Integer limit, Integer criteria) {
+    public List<PostPreviewResponse> list(Integer page, Integer limit, Integer criteria) {
         String sortProperty = switch (criteria) {
             case 1 -> "createdAt";
             case 2 -> "heartCount";
@@ -102,14 +101,14 @@ public class PostService {
             return postPage.stream()
                     .map(post -> {
                         boolean isLiked = heartRepository.findByMemberAndPost(member, post).isPresent();
-                        return postMapper.toResponse(post, isLiked);
+                        return postMapper.toPreviewResponse(post, isLiked);
                     })
                     .collect(Collectors.toList());
 
         // 인증 실패 시 전부 누르지 않은 것으로 처리
         } catch (Exception e) {
             return postPage.stream()
-                    .map(post -> postMapper.toResponse(post, false))
+                    .map(post -> postMapper.toPreviewResponse(post, false))
                     .collect(Collectors.toList());
         }
     }
@@ -229,16 +228,12 @@ public class PostService {
 
 
     // 좋아요 누른 게시물 조회
-    public List<PostResponse> getHeartPost() {
+    public List<PostPreviewResponse> getHeartPost() {
         Member member = memberService.getMember();
         List<Heart> hearts = heartRepository.findAllByMember(member);
-        List<Post> posts = hearts.stream()
-                .map(heart -> postRepository.findById(heart.getPost().getId()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        List<Post> posts = hearts.stream().map(postRepository::findByHeart).toList();
         return posts.stream()
-                .map(post -> postMapper.toResponse(post, true))
+                .map(post -> postMapper.toPreviewResponse(post, true))
                 .collect(Collectors.toList());
     }
 }

@@ -1,11 +1,11 @@
 package com.onmydesk.backend.post.controller;
 
 import com.onmydesk.backend.post.dto.PostAndProductResponse;
+import com.onmydesk.backend.post.dto.PostPreviewResponse;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.post.service.PostService;
 import com.onmydesk.backend.global.ApiResponse;
-import com.onmydesk.backend.s3.S3Uploader;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class PostController {
     public ResponseEntity<?> getList(
             @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "1") Integer criteria
     ){
-        List<PostResponse> postResponses = postService.list(page, limit, criteria);
+        List<PostPreviewResponse> postResponses = postService.list(page, limit, criteria);
         return apiResponse.success("게시글 목록 조회 성공", postResponses, HttpStatus.OK);
     }
 
