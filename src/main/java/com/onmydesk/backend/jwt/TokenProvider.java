@@ -132,6 +132,17 @@ public class TokenProvider implements InitializingBean {
         }
         return false;
     }
+
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            Jwts.parser().setSigningKey(key).parseClaimsJws(refreshToken);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            logger.info("잘못된 Refresh Token입니다.");
+            return false;
+        }
+    }
+
     public Long getExpiration(String accessToken) {
         // accessToken 유효시간
         Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody().getExpiration();

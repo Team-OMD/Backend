@@ -44,7 +44,11 @@ public class MemberService {
     @Transactional
     public void logout(TokenRequestDto tokenRequestDto) {
         if (!tokenProvider.validateToken(tokenRequestDto.getAccessToken())) {
-            throw new IllegalArgumentException("로그아웃 : 유효하지 않은 토큰입니다.");
+            throw new RestApiException(MemberErrorCode.INVALID_ACCESS_TOKEN);
+        }
+
+        if (!tokenProvider.validateRefreshToken(tokenRequestDto.getRefreshToken())) {
+            throw new RestApiException(MemberErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
