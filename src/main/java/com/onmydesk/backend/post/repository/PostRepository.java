@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>{
 
@@ -31,6 +33,12 @@ public interface PostRepository extends JpaRepository<Post, Long>{
     void addViewCount(Post post);
 
     Post findByHeart(Heart heart);
+
+    @Query("select p from Post p " +
+            "join fetch p.member " +
+            "left join fetch p.images " +
+            "where p.id = :postId")
+    Optional<Post> findById(Long postId);
 
     @Query("select distinct p from Post p " +
             "join fetch p.member " +
