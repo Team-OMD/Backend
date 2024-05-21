@@ -1,6 +1,7 @@
 package com.onmydesk.backend.post.controller;
 
 import com.onmydesk.backend.post.dto.PostAndProductResponse;
+import com.onmydesk.backend.post.dto.PostPreviewResponse;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
 import com.onmydesk.backend.post.service.PostService;
@@ -41,7 +42,7 @@ public class PostController {
     public ResponseEntity<?> getList(
             @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "1") Integer criteria
     ){
-        List<PostResponse> postResponses = postService.list(page, limit, criteria);
+        List<PostPreviewResponse> postResponses = postService.list(page, limit, criteria);
         return apiResponse.success("게시글 목록 조회 성공", postResponses, HttpStatus.OK);
     }
 
