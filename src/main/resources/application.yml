@@ -77,3 +77,32 @@ jwt:
   token-validity-in-seconds: 86400
 
 
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowType: TIME_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 10  # 최소한 호출을 10번을 기록해야 실패 비율을 계산할 수 있다.
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 60000
+        failureRateThreshold: 50
+        permittedNumberOfCallsInHalfOpenState: 10
+        waitDurationInOpenState: 10s  # 서킷의 상태가 Open 에서 Half-open 으로 변경되기전에 CircuitBreaker가 기다리는 시간 [s]
+    instances:
+      searchProductCircuitBreaker:
+        baseConfig: default
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include:
+          - "*"
+  health:
+    circuitbreakers:
+      enabled: true
