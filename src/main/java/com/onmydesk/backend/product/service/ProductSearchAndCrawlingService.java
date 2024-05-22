@@ -5,6 +5,7 @@ import com.onmydesk.backend.error.errorcode.ProductErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.product.domain.Page;
 import com.onmydesk.backend.product.domain.Product;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,6 +32,7 @@ public class ProductSearchAndCrawlingService {
     @Value("${naver.api.client.secret}")
     private String clientSecret;
 
+    @CircuitBreaker(name = "searchProductCircuitBreaker", fallbackMethod = "fallback")
     public String searchProduct(String query, int display) {
         String text = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String apiURL = "https://openapi.naver.com/v1/search/shop.json?query=" + text + "&display=" + display;
@@ -82,8 +84,12 @@ public class ProductSearchAndCrawlingService {
             // 결과 JsonArray를 String으로 변환하여 반환
             return gson.toJson(products);
         } catch (IOException | InterruptedException e) {
-            throw new RestApiException(ProductErrorCode.API_REQUEST_FAILED);
+            throw new RuntimeException("API 요청과 응답 실패", e);
         }
+    }
+
+    public String fallback(String query, int display, Throwable t) {
+        return "Fallback! exception type: " + t.getClass() + ", message: " + t.getMessage();
     }
 
     public List<Page> crawlPage(Product product) {
