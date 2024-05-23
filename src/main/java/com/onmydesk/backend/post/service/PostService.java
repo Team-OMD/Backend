@@ -1,5 +1,6 @@
 package com.onmydesk.backend.post.service;
 
+import com.onmydesk.backend.error.errorcode.ImageErrorCode;
 import com.onmydesk.backend.error.errorcode.PostErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.heart.domain.Heart;
@@ -135,6 +136,8 @@ public class PostService {
             boolean isLiked = heartRepository.findByMemberAndPost(member, post).isPresent();
             PostResponse postResponse = postMapper.toResponse(post, isLiked);
 
+
+
             return PostAndProductResponse.builder()
                     .post(postResponse)
                     .products(productResponses)
@@ -208,16 +211,22 @@ public class PostService {
     }
 
     private void updatePostImages(Post post, List<Long> imageIds, Long thumbnailImageId) {
-        List<Image> newImages = imageRepository.findAllById(imageIds);
+        List<Image> images = imageRepository.findAllById(imageIds);
 
-        // 기존 이미지 컬렉션을 가져와서 클리어 후, 새 이미지를 추가
-        Set<Image> currentImages = post.getImages();
-        currentImages.clear();
-        currentImages.addAll(newImages);
+        post.getImages().removeIf(image -> !imageIds.contains(image.getId()));
 
-        // 썸네일 이미지 설정
-        Image thumbnailImage = imageRepository.findById(thumbnailImageId).orElse(null);
-        post.setThumbnailImage(thumbnailImage);
+
+        images.forEach(image -> {
+            if (!post.getImages().contains(image)) {
+                post.addImage(image);
+            }
+        });
+
+        if (thumbnailImageId != null) {
+            Image thumbnailImage = imageRepository.findById(thumbnailImageId)
+                    .orElseThrow(() -> new RestApiException(ImageErrorCode.IMAGE_NOT_FOUND));
+            post.setThumbnailImage(thumbnailImage);
+        }
     }
 
 
