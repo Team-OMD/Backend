@@ -31,6 +31,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -199,9 +200,26 @@ public class PostService {
                 }
             }
         });
-      
+
+         //이미지 업데이트 로직 추가
+        updatePostImages(post, request.getImageIds(), request.getThumbnailImageId());
+
         return postMapper.toResponse(post, isLiked);
     }
+
+    private void updatePostImages(Post post, List<Long> imageIds, Long thumbnailImageId) {
+        List<Image> newImages = imageRepository.findAllById(imageIds);
+
+        // 기존 이미지 컬렉션을 가져와서 클리어 후, 새 이미지를 추가
+        Set<Image> currentImages = post.getImages();
+        currentImages.clear();
+        currentImages.addAll(newImages);
+
+        // 썸네일 이미지 설정
+        Image thumbnailImage = imageRepository.findById(thumbnailImageId).orElse(null);
+        post.setThumbnailImage(thumbnailImage);
+    }
+
 
 
     // 게시글 삭제
