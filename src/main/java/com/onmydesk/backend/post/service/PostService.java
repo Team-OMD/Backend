@@ -16,8 +16,8 @@ import com.onmydesk.backend.post.mapper.PostMapper;
 import com.onmydesk.backend.post.repository.PostProductRepository;
 import com.onmydesk.backend.post.repository.PostRepository;
 import com.onmydesk.backend.product.domain.Product;
-import com.onmydesk.backend.product.dto.ProductInfoResponse;
 import com.onmydesk.backend.product.dto.ProductRequest;
+import com.onmydesk.backend.product.dto.ProductResponse;
 import com.onmydesk.backend.product.mapper.ProductMapper;
 import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.product.service.ProductService;
@@ -126,8 +126,8 @@ public class PostService {
                 .map(PostProduct::getProduct)
                 .collect(Collectors.toList());
 
-        List<ProductInfoResponse> productInfoResponses = products.stream()
-                .map(productMapper::toInfoResponse)
+        List<ProductResponse> productResponses = products.stream()
+                .map(product -> productMapper.toResponse(product, false)) // 기본적으로 false를 사용
                 .collect(Collectors.toList());
 
         try {
@@ -137,7 +137,7 @@ public class PostService {
 
             return PostAndProductResponse.builder()
                     .post(postResponse)
-                    .products(productInfoResponses)
+                    .products(productResponses)
                     .build();
 
         } catch (Exception e) {
@@ -145,10 +145,11 @@ public class PostService {
 
             return PostAndProductResponse.builder()
                     .post(postResponse)
-                    .products(productInfoResponses)
+                    .products(productResponses)
                     .build();
         }
     }
+
 
     // 게시글 업데이트
     @Transactional
@@ -199,9 +200,26 @@ public class PostService {
                 }
             }
         });
-      
+
+         //이미지 업데이트 로직 추가
+        updatePostImages(post, request.getImageIds(), request.getThumbnailImageId());
+
         return postMapper.toResponse(post, isLiked);
     }
+
+    private void updatePostImages(Post post, List<Long> imageIds, Long thumbnailImageId) {
+        List<Image> newImages = imageRepository.findAllById(imageIds);
+
+        // 기존 이미지 컬렉션을 가져와서 클리어 후, 새 이미지를 추가
+        Set<Image> currentImages = post.getImages();
+        currentImages.clear();
+        currentImages.addAll(newImages);
+
+        // 썸네일 이미지 설정
+        Image thumbnailImage = imageRepository.findById(thumbnailImageId).orElse(null);
+        post.setThumbnailImage(thumbnailImage);
+    }
+
 
 
     // 게시글 삭제

@@ -1,6 +1,7 @@
 package com.onmydesk.backend.post.dto;
 
 import com.onmydesk.backend.product.dto.ProductInfoResponse;
+import com.onmydesk.backend.product.dto.ProductResponse;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,10 +12,11 @@ import java.util.List;
 public class PostAndProductResponse {
 
     private final PostResponse post;
-    private final List<ProductInfoResponse> products;
+    private final List<ProductResponse> products;
 
-    public PostAndProductResponse(PostResponse postResponse, List<ProductInfoResponse> productInfoResponses) {
+
+    public PostAndProductResponse(PostResponse postResponse, List<ProductResponse> productResponses) {
         this.post = postResponse;
-        this.products = productInfoResponses;
+        this.products = productResponses;
     }
 }
