@@ -16,8 +16,8 @@ import com.onmydesk.backend.post.mapper.PostMapper;
 import com.onmydesk.backend.post.repository.PostProductRepository;
 import com.onmydesk.backend.post.repository.PostRepository;
 import com.onmydesk.backend.product.domain.Product;
-import com.onmydesk.backend.product.dto.ProductInfoResponse;
 import com.onmydesk.backend.product.dto.ProductRequest;
+import com.onmydesk.backend.product.dto.ProductResponse;
 import com.onmydesk.backend.product.mapper.ProductMapper;
 import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.product.service.ProductService;
@@ -31,7 +31,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -127,8 +126,8 @@ public class PostService {
                 .map(PostProduct::getProduct)
                 .collect(Collectors.toList());
 
-        List<ProductInfoResponse> productInfoResponses = products.stream()
-                .map(productMapper::toInfoResponse)
+        List<ProductResponse> productResponses = products.stream()
+                .map(product -> productMapper.toResponse(product, false)) // 기본적으로 false를 사용
                 .collect(Collectors.toList());
 
         try {
@@ -138,7 +137,7 @@ public class PostService {
 
             return PostAndProductResponse.builder()
                     .post(postResponse)
-                    .products(productInfoResponses)
+                    .products(productResponses)
                     .build();
 
         } catch (Exception e) {
@@ -146,10 +145,11 @@ public class PostService {
 
             return PostAndProductResponse.builder()
                     .post(postResponse)
-                    .products(productInfoResponses)
+                    .products(productResponses)
                     .build();
         }
     }
+
 
     // 게시글 업데이트
     @Transactional
