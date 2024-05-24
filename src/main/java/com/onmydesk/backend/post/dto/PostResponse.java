@@ -20,7 +20,7 @@ public class PostResponse {
     private final int totalPrice;
     private final boolean isLiked;
     @Singular("image")
-    private final List<String> imageUrls; // 게시글에 포함된 이미지 URL 리스트
+    private final List<ImageInfo> imageUrls; // 게시글에 포함된 이미지 URL 리스트
 
     private final String thumbnailUrl; // 썸네일 이미지의 URL
 
