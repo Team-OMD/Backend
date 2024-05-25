@@ -64,22 +64,26 @@ public class ProductSearchAndCrawlingService {
             for (int i = 0; i < items.size(); i++) {
                 JsonObject item = items.get(i).getAsJsonObject();
 
-                JsonObject product = new JsonObject();
-                // 상품 이름에서 HTML 태그 제거
-                String productName = item.get("title").getAsString().replaceAll("<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>", "");
-                product.addProperty("productName", productName);
-                product.addProperty("img", item.get("image").getAsString());
-                product.addProperty("productCode", item.get("productId").getAsString());
-                product.addProperty("lprice", item.get("lprice").getAsInt());
-                product.addProperty("brand", item.get("brand").getAsString());
-                product.addProperty("maker", item.get("maker").getAsString());
-                product.addProperty("category1", item.get("category1").getAsString());
-                product.addProperty("category2", item.get("category2").getAsString());
-                product.addProperty("category3", item.get("category3").getAsString());
-                product.addProperty("category4", item.get("category4").getAsString());
+                // 카테고리 확인 후 배열에 추가
+                if ("디지털/가전".equals(item.get("category1").getAsString()) || "가구/인테리어".equals(item.get("category1").getAsString()) ||
+                        ("생활/건강".equals(item.get("category1").getAsString()) && "문구/사무용품".equals(item.get("category2").getAsString()))) {
+                    JsonObject product = new JsonObject();
+                    // 상품 이름에서 HTML 태그 제거
+                    String productName = item.get("title").getAsString().replaceAll("<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>", "");
+                    product.addProperty("productName", productName);
+                    product.addProperty("img", item.get("image").getAsString());
+                    product.addProperty("productCode", item.get("productId").getAsString());
+                    product.addProperty("lprice", item.get("lprice").getAsInt());
+                    product.addProperty("brand", item.get("brand").getAsString());
+                    product.addProperty("maker", item.get("maker").getAsString());
+                    product.addProperty("category1", item.get("category1").getAsString());
+                    product.addProperty("category2", item.get("category2").getAsString());
+                    product.addProperty("category3", item.get("category3").getAsString());
+                    product.addProperty("category4", item.get("category4").getAsString());
 
-                // 추출한 정보를 결과 JsonArray에 추가
-                products.add(product);
+                    // 추출한 정보를 결과 JsonArray에 추가
+                    products.add(product);
+                }
             }
             // 결과 JsonArray를 String으로 변환하여 반환
             return gson.toJson(products);
