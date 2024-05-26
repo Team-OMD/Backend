@@ -4,6 +4,7 @@ import com.onmydesk.backend.post.dto.PostAndProductResponse;
 import com.onmydesk.backend.post.dto.PostPreviewResponse;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
+import com.onmydesk.backend.post.service.PopularPost;
 import com.onmydesk.backend.post.service.PostService;
 import com.onmydesk.backend.global.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,7 @@ public class PostController {
 
     private final PostService postService;
     private final ApiResponse apiResponse;
+    private final PopularPost popularPost;
 
 
     // 게시글 생성
@@ -75,4 +77,12 @@ public class PostController {
         return apiResponse.success("게시글 삭제 성공", HttpStatus.NO_CONTENT);
     }
 
+    // 인기글 조회
+    @GetMapping("/posts/popular")
+    @Operation(summary = "인기글 목록 조회", description = "인기글 목록을 조회한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
+    public ResponseEntity<?> getPopularPosts( ){
+        List<PostPreviewResponse> postResponses = popularPost.getList();
+        return apiResponse.success("인기글 조회 성공", postResponses, HttpStatus.OK);
+    }
 }
