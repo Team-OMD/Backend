@@ -72,12 +72,12 @@ public class SetupController {
     }
 
     // 셋업 상품 삭제
-    @DeleteMapping("/setups/{setupId}/{setupProductId}")
+    @DeleteMapping("/setups/{setupId}/{productId}")
     @Operation(summary = "셋업 상품 삭제", description = "셋업 상품을 삭제한다.")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "삭제"))
     public ResponseEntity<?> deleteProduct(@PathVariable("setupId") Long setupId,
-                                           @PathVariable("setupProductId") Long setupProductId) {
-        setupService.deleteProduct(setupId, setupProductId);
+                                           @PathVariable("productId") Long productId) {
+        setupService.deleteProduct(setupId, productId);
         return apiResponse.success("셋업 상품 삭제 성공", HttpStatus.NO_CONTENT);
     }
 

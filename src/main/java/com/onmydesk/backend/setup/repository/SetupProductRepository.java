@@ -12,6 +12,6 @@ public interface SetupProductRepository extends JpaRepository<SetupProduct, Long
 
     List<SetupProduct> findBySetupId(Long setupId);
 
-    Optional<SetupProduct> findBySetupIdAndId(Long setupId, Long setupProductId);
+    Optional<SetupProduct> findBySetupIdAndProductId(Long setupId, Long productId);
 
 }

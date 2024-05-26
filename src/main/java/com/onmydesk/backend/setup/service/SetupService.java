@@ -160,11 +160,11 @@ public class SetupService {
     }
 
     // 셋업 상품 삭제
-    public void deleteProduct(Long setupId, Long setupProductId) {
+    public void deleteProduct(Long setupId, Long productId) {
         Member member = memberService.getMember();
         setupValidator.validateSetupOwnership(setupId, member);
 
-        Optional<SetupProduct> setupProduct = setupProductRepository.findBySetupIdAndId(setupId, setupProductId);
+        Optional<SetupProduct> setupProduct = setupProductRepository.findBySetupIdAndProductId(setupId, productId);
         if (setupProduct.isPresent()) {
             setupProductRepository.delete(setupProduct.get());
         } else {
