@@ -1,5 +1,6 @@
 package com.onmydesk.backend.setup.service;
 
+import com.onmydesk.backend.error.errorcode.ProductErrorCode;
 import com.onmydesk.backend.error.errorcode.SetupErrorCode;
 import com.onmydesk.backend.error.errorcode.SetupProductErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
@@ -9,6 +10,7 @@ import com.onmydesk.backend.product.domain.Product;
 import com.onmydesk.backend.product.dto.ProductInfoResponse;
 import com.onmydesk.backend.product.dto.ProductRequest;
 import com.onmydesk.backend.product.mapper.ProductMapper;
+import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.product.service.ProductService;
 import com.onmydesk.backend.setup.domain.Setup;
 import com.onmydesk.backend.setup.domain.SetupProduct;
@@ -26,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,7 @@ public class SetupService {
     private final ProductService productService;
     private final SetupRepository setupRepository;
     private final SetupProductRepository setupProductRepository;
+    private final ProductRepository productRepository;
     private final SetupMapper setupMapper;
     private final ProductMapper productMapper;
     private final SetupValidator setupValidator;
@@ -164,11 +166,23 @@ public class SetupService {
         Member member = memberService.getMember();
         setupValidator.validateSetupOwnership(setupId, member);
 
-        Optional<SetupProduct> setupProduct = setupProductRepository.findBySetupIdAndProductId(setupId, productId);
-        if (setupProduct.isPresent()) {
-            setupProductRepository.delete(setupProduct.get());
-        } else {
-            throw new RestApiException(SetupProductErrorCode.SETUP_PRODUCT_NOT_FOUND);
-        }
+        setupProductRepository.findBySetupIdAndProductId(setupId, productId).ifPresentOrElse(setupProduct -> {
+            // 상품 가격 가져오기
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND)); // 상품이 존재하지 않는 경우 예외 처리
+
+            int productPrice = product.getLprice(); // 상품 가격
+
+            // Setup 엔티티의 postTotalPrice에서 상품 가격 빼기
+            Setup setup = setupRepository.findById(setupId)
+                    .orElseThrow(() -> new RestApiException(SetupErrorCode.SETUP_NOT_FOUND)); // 셋업이 존재하지 않는 경우 예외 처리
+
+            setup.priceUpdate(setup.getPostTotalPrice() - productPrice); // 가격 업데이트
+
+            // 상품 삭제
+            setupProductRepository.delete(setupProduct);
+        }, () -> {
+            throw new RestApiException(SetupProductErrorCode.SETUP_PRODUCT_NOT_FOUND); // 상품이 존재하지 않는 경우 예외 처리
+        });
     }
 }
