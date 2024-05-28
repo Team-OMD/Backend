@@ -40,4 +40,8 @@ public class Setup extends BaseEntity {
         this.setupName = setupName;
         this.postTotalPrice = postTotalPrice;
     }
+
+    public void priceUpdate(int postTotalPrice) {
+        this.postTotalPrice = postTotalPrice;
+    }
 }
