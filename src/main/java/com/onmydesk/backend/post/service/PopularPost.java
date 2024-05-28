@@ -3,6 +3,7 @@ package com.onmydesk.backend.post.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.onmydesk.backend.config.redis.RedisUtil;
 import com.onmydesk.backend.heart.repository.HeartRepository;
 import com.onmydesk.backend.post.dto.PostPreviewResponse;
@@ -39,23 +40,19 @@ public class PopularPost {
 
         if (redisUtil.checkExistsValue(cachedData)) {
             // Redis에 데이터가 있는 경우
-            List<Long> postIds = deserializePostIds(cachedData);
-            return postIds.stream()
-                    .map(postId -> postMapper.toPreviewResponse(postRepository.findById(postId).orElse(null), false))
-                    .collect(Collectors.toList());
+            System.out.println("Cached Data: " + cachedData);
+            return deserializePostPreviews(cachedData);
         } else {
             // Redis에 데이터가 없는 경우 인기글 목록 업데이트 후 가져오기
             updateList();
             cachedData = redisUtil.getValues(redisKey);
-            List<Long> postIds = deserializePostIds(cachedData);
-            return postIds.stream()
-                    .map(postId -> postMapper.toPreviewResponse(postRepository.findById(postId).orElse(null), false))
-                    .collect(Collectors.toList());
+            System.out.println("Updated Data: " + cachedData);
+            return deserializePostPreviews(cachedData);
         }
     }
 
 
-    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void updateList() {
         // 현재 시간 가져오기
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
@@ -64,11 +61,17 @@ public class PopularPost {
         Pageable pageable = PageRequest.of(0, 5);
         List<Long> popularPostIds = heartRepository.findTop5PostIds(oneWeekAgo, pageable);
 
-        // ID 리스트를 JSON 형태로 변환
+        // 인기 게시글들을 PostPreviewResponse로 변환
+        List<PostPreviewResponse> popularPosts = popularPostIds.stream()
+                .map(postId -> postMapper.toPreviewResponse(postRepository.findById(postId).orElse(null), false))
+                .collect(Collectors.toList());
+
+        // PostPreviewResponse 리스트를 JSON 형태로 변환
         ObjectMapper objectMapper = new ObjectMapper();
-        String popularPostsIdsJson;
+        objectMapper.registerModule(new JavaTimeModule());
+        String popularPostsJson;
         try {
-            popularPostsIdsJson = objectMapper.writeValueAsString(popularPostIds);
+            popularPostsJson = objectMapper.writeValueAsString(popularPosts);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return;
@@ -77,16 +80,18 @@ public class PopularPost {
         // popular_posts::yyyyMMdd 형태의 Key에 Value 저장
         String day = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String redisKey = POPULAR_POSTS_KEY_PREFIX + day;
-        redisUtil.setValues(redisKey, popularPostsIdsJson, Duration.ofHours(24));
+        redisUtil.setValues(redisKey, popularPostsJson, Duration.ofHours(24));
     }
 
     // JSON 형태의 값을 역직렬화하는 메서드
-    public List<Long> deserializePostIds(String json) {
+    public List<PostPreviewResponse> deserializePostPreviews(String json) {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         try {
-            return objectMapper.readValue(json, new TypeReference<List<Long>>(){});
+            return objectMapper.readValue(json, new TypeReference<List<PostPreviewResponse>>() {});
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("JSON Data: " + json); // 디버그 출력
             return new ArrayList<>();
         }
     }
