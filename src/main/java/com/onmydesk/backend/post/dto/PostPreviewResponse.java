@@ -1,25 +1,32 @@
 package com.onmydesk.backend.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PostPreviewResponse {
-    private final Long id;
-    private final String title;
-    private final int heartCount;
-    private final int viewCount;
-    private final boolean isLiked;
+    private Long id;
+    private String title;
+    private int heartCount;
+    private int viewCount;
 
-    private final String thumbnailUrl; // 썸네일 이미지의 URL
+    @JsonProperty("liked")
+    private boolean isLiked;
+
+    private String thumbnailUrl; // 썸네일 이미지의 URL
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    private final LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
-    private final LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;
 }
