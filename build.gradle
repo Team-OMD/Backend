@@ -55,6 +55,14 @@ dependencies {
 	implementation 'org.jsoup:jsoup:1.17.2'
 	implementation 'com.google.code.gson:gson:2.10.1'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	// resilience4j
+	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'io.github.resilience4j:resilience4j-circuitbreaker:2.2.0'
+//	implementation 'io.github.resilience4j:resilience4j-timelimiter:2.2.0'
+//	implementation 'io.github.resilience4j:resilience4j-retry:2.2.0'
 }
 
 tasks.named('test') {

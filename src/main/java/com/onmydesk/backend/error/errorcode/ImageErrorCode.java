@@ -6,10 +6,8 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum ProductErrorCode implements ErrorCode {
-
-    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "Product not found"),
-    CRAWLING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Crawling failed"),
+public enum ImageErrorCode implements ErrorCode {
+    IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "Image not found")
     ;
 
     private final HttpStatus httpStatus;

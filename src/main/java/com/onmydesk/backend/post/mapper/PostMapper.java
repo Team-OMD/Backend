@@ -3,6 +3,7 @@ package com.onmydesk.backend.post.mapper;
 import com.onmydesk.backend.member.domain.Member;
 import com.onmydesk.backend.post.domain.Post;
 import com.onmydesk.backend.post.domain.PostProduct;
+import com.onmydesk.backend.post.dto.ImageInfo;
 import com.onmydesk.backend.post.dto.PostPreviewResponse;
 import com.onmydesk.backend.post.dto.PostRequest;
 import com.onmydesk.backend.post.dto.PostResponse;
@@ -10,9 +11,7 @@ import com.onmydesk.backend.product.domain.Product;
 import com.onmydesk.backend.product.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import com.onmydesk.backend.s3.domain.Image;
-
-
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -50,6 +49,10 @@ public class PostMapper {
         // 회원 정보
         Member member = post.getMember();
 
+        List<ImageInfo> imageInfos = post.getImages().stream()
+                .map(image -> new ImageInfo(image.getId(), image.getUrl()))
+                .collect(Collectors.toList());
+
         return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -62,7 +65,7 @@ public class PostMapper {
                 .updatedAt(post.getUpdatedAt())
                 .isLiked(isLiked)
                 .thumbnailUrl(post.getThumbnailImage() != null ? post.getThumbnailImage().getUrl() : null)
-                .imageUrls(post.getImages().stream().map(Image::getUrl).collect(Collectors.toList()))
+                .imageUrls(imageInfos)
                 .build();
     }
 

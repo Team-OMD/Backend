@@ -5,6 +5,7 @@ import com.onmydesk.backend.error.errorcode.ProductErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.product.domain.Page;
 import com.onmydesk.backend.product.domain.Product;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,6 +32,7 @@ public class ProductSearchAndCrawlingService {
     @Value("${naver.api.client.secret}")
     private String clientSecret;
 
+    @CircuitBreaker(name = "searchProductCircuitBreaker", fallbackMethod = "fallback")
     public String searchProduct(String query, int display) {
         String text = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String apiURL = "https://openapi.naver.com/v1/search/shop.json?query=" + text + "&display=" + display;
@@ -62,28 +64,36 @@ public class ProductSearchAndCrawlingService {
             for (int i = 0; i < items.size(); i++) {
                 JsonObject item = items.get(i).getAsJsonObject();
 
-                JsonObject product = new JsonObject();
-                // 상품 이름에서 HTML 태그 제거
-                String productName = item.get("title").getAsString().replaceAll("<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>", "");
-                product.addProperty("productName", productName);
-                product.addProperty("img", item.get("image").getAsString());
-                product.addProperty("productCode", item.get("productId").getAsString());
-                product.addProperty("lprice", item.get("lprice").getAsInt());
-                product.addProperty("brand", item.get("brand").getAsString());
-                product.addProperty("maker", item.get("maker").getAsString());
-                product.addProperty("category1", item.get("category1").getAsString());
-                product.addProperty("category2", item.get("category2").getAsString());
-                product.addProperty("category3", item.get("category3").getAsString());
-                product.addProperty("category4", item.get("category4").getAsString());
+                // 카테고리 확인 후 배열에 추가
+                if ("디지털/가전".equals(item.get("category1").getAsString()) || "가구/인테리어".equals(item.get("category1").getAsString()) ||
+                        ("생활/건강".equals(item.get("category1").getAsString()) && "문구/사무용품".equals(item.get("category2").getAsString()))) {
+                    JsonObject product = new JsonObject();
+                    // 상품 이름에서 HTML 태그 제거
+                    String productName = item.get("title").getAsString().replaceAll("<(/)?([a-zA-Z]*)(\\s[a-zA-Z]*=[^>]*)?(\\s)*(/)?>", "");
+                    product.addProperty("productName", productName);
+                    product.addProperty("img", item.get("image").getAsString());
+                    product.addProperty("productCode", item.get("productId").getAsString());
+                    product.addProperty("lprice", item.get("lprice").getAsInt());
+                    product.addProperty("brand", item.get("brand").getAsString());
+                    product.addProperty("maker", item.get("maker").getAsString());
+                    product.addProperty("category1", item.get("category1").getAsString());
+                    product.addProperty("category2", item.get("category2").getAsString());
+                    product.addProperty("category3", item.get("category3").getAsString());
+                    product.addProperty("category4", item.get("category4").getAsString());
 
-                // 추출한 정보를 결과 JsonArray에 추가
-                products.add(product);
+                    // 추출한 정보를 결과 JsonArray에 추가
+                    products.add(product);
+                }
             }
             // 결과 JsonArray를 String으로 변환하여 반환
             return gson.toJson(products);
         } catch (IOException | InterruptedException e) {
-            throw new RestApiException(ProductErrorCode.API_REQUEST_FAILED);
+            throw new RuntimeException("API 요청과 응답 실패", e);
         }
+    }
+
+    public String fallback(String query, int display, Throwable t) {
+        return "Fallback! exception type: " + t.getClass() + ", message: " + t.getMessage();
     }
 
     public List<Page> crawlPage(Product product) {

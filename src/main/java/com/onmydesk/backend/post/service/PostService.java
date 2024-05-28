@@ -1,5 +1,6 @@
 package com.onmydesk.backend.post.service;
 
+import com.onmydesk.backend.error.errorcode.ImageErrorCode;
 import com.onmydesk.backend.error.errorcode.PostErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.heart.domain.Heart;
@@ -16,8 +17,8 @@ import com.onmydesk.backend.post.mapper.PostMapper;
 import com.onmydesk.backend.post.repository.PostProductRepository;
 import com.onmydesk.backend.post.repository.PostRepository;
 import com.onmydesk.backend.product.domain.Product;
-import com.onmydesk.backend.product.dto.ProductInfoResponse;
 import com.onmydesk.backend.product.dto.ProductRequest;
+import com.onmydesk.backend.product.dto.ProductResponse;
 import com.onmydesk.backend.product.mapper.ProductMapper;
 import com.onmydesk.backend.product.repository.ProductRepository;
 import com.onmydesk.backend.product.service.ProductService;
@@ -126,8 +127,8 @@ public class PostService {
                 .map(PostProduct::getProduct)
                 .collect(Collectors.toList());
 
-        List<ProductInfoResponse> productInfoResponses = products.stream()
-                .map(productMapper::toInfoResponse)
+        List<ProductResponse> productResponses = products.stream()
+                .map(product -> productMapper.toResponse(product, false)) // 기본적으로 false를 사용
                 .collect(Collectors.toList());
 
         try {
@@ -135,9 +136,11 @@ public class PostService {
             boolean isLiked = heartRepository.findByMemberAndPost(member, post).isPresent();
             PostResponse postResponse = postMapper.toResponse(post, isLiked);
 
+
+
             return PostAndProductResponse.builder()
                     .post(postResponse)
-                    .products(productInfoResponses)
+                    .products(productResponses)
                     .build();
 
         } catch (Exception e) {
@@ -145,10 +148,11 @@ public class PostService {
 
             return PostAndProductResponse.builder()
                     .post(postResponse)
-                    .products(productInfoResponses)
+                    .products(productResponses)
                     .build();
         }
     }
+
 
     // 게시글 업데이트
     @Transactional
@@ -199,9 +203,32 @@ public class PostService {
                 }
             }
         });
-      
+
+         //이미지 업데이트 로직 추가
+        updatePostImages(post, request.getImageIds(), request.getThumbnailImageId());
+
         return postMapper.toResponse(post, isLiked);
     }
+
+    private void updatePostImages(Post post, List<Long> imageIds, Long thumbnailImageId) {
+        List<Image> images = imageRepository.findAllById(imageIds);
+
+        post.getImages().removeIf(image -> !imageIds.contains(image.getId()));
+
+
+        images.forEach(image -> {
+            if (!post.getImages().contains(image)) {
+                post.addImage(image);
+            }
+        });
+
+        if (thumbnailImageId != null) {
+            Image thumbnailImage = imageRepository.findById(thumbnailImageId)
+                    .orElseThrow(() -> new RestApiException(ImageErrorCode.IMAGE_NOT_FOUND));
+            post.setThumbnailImage(thumbnailImage);
+        }
+    }
+
 
 
     // 게시글 삭제
