@@ -59,7 +59,7 @@ public class PopularPost {
 
         // 일주일 동안 좋아요를 많이 받은 게시글 id 5개 가져오기
         Pageable pageable = PageRequest.of(0, 5);
-        List<Long> popularPostIds = heartRepository.findTop5PostIds(oneWeekAgo, pageable);
+        List<Long> popularPostIds = heartRepository.findTopPostIds(oneWeekAgo, pageable);
 
         // 인기 게시글들을 PostPreviewResponse로 변환
         List<PostPreviewResponse> popularPosts = popularPostIds.stream()
