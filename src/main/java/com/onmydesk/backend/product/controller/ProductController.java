@@ -3,6 +3,7 @@ package com.onmydesk.backend.product.controller;
 import com.onmydesk.backend.global.ApiResponse;
 import com.onmydesk.backend.product.dto.ProductAndPageResponse;
 import com.onmydesk.backend.product.dto.ProductResponse;
+import com.onmydesk.backend.product.service.PopularProduct;
 import com.onmydesk.backend.product.service.ProductSearchAndCrawlingService;
 import com.onmydesk.backend.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,7 @@ public class ProductController {
     private final ProductService productService;
     private final ProductSearchAndCrawlingService productSearchAndCrawlingService;
     private final ApiResponse apiResponse;
+    private final PopularProduct popularProduct;
 
     // 상품 목록 조회
     @GetMapping("/products")
@@ -50,5 +52,14 @@ public class ProductController {
     public String searchProduct(@RequestParam(value = "query") String query,
                                 @RequestParam(value = "display", defaultValue = "10") int display) {
         return productSearchAndCrawlingService.searchProduct(query, display);
+    }
+
+    // 인기 상품 조회
+    @GetMapping("/products/popular")
+    @Operation(summary = "인기 상품 목록 조회", description = "인기 상품 목록을 조회한다.")
+    @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
+    public ResponseEntity<?> getPopularPosts( ){
+        List<ProductResponse> postResponses = popularProduct.getList();
+        return apiResponse.success("인기 상품 조회 성공", postResponses, HttpStatus.OK);
     }
 }
