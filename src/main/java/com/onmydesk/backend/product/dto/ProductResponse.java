@@ -1,25 +1,32 @@
 package com.onmydesk.backend.product.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductResponse {
 
-    private final Long id;
-    private final String productName;
-    private final String img;
-    private final String productCode;
-    private final int lprice;
-    private final String brand;
-    private final String maker;
-    private final String category1;
-    private final String category2;
-    private final String category3;
-    private final String category4;
-    private final int postCount;
-    private final int wishCount;
-    private final int viewCount;
-    private final boolean isWished;
+    private Long id;
+    private String productName;
+    private String img;
+    private String productCode;
+    private int lprice;
+    private String brand;
+    private String maker;
+    private String category1;
+    private String category2;
+    private String category3;
+    private String category4;
+    private int postCount;
+    private int wishCount;
+    private int viewCount;
+
+    @JsonProperty("wished")
+    private boolean isWished;
 }
