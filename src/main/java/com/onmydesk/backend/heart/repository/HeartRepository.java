@@ -18,6 +18,9 @@ public interface HeartRepository extends JpaRepository<Heart, Long> {
 
     List<Heart> findAllByMember(Member member);
 
-    @Query("SELECT h.post.id FROM Heart h WHERE h.createdAt > :localDateTime GROUP BY h.post.id ORDER BY COUNT(h.post.id) DESC, h.post.id DESC")
-    List<Long> findTop5PostIds(LocalDateTime localDateTime, Pageable pageable);
+    @Query("SELECT h.post.id FROM Heart h " +
+            "WHERE h.createdAt > :localDateTime " +
+            "GROUP BY h.post.id " +
+            "ORDER BY COUNT(h.post.id) DESC, h.post.id DESC")
+    List<Long> findTopPostIds(LocalDateTime localDateTime, Pageable pageable);
 }
