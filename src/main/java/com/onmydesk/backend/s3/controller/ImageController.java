@@ -38,7 +38,7 @@ public class ImageController {
         List<Image> uploadedImages = new ArrayList<>();
         try {
             for (MultipartFile file : multipartFiles) {
-                String dirName = "images"; // S3에서 사용할 디렉토리 이름
+                String dirName = "omdimages"; // S3에서 사용할 디렉토리 이름
                 String imageUrl = s3Uploader.upload(file, dirName);
                 Image image = new Image();
                 image.setUrl(imageUrl);
