@@ -50,8 +50,9 @@ public class ProductController {
     @Operation(summary = "상품 검색", description = "상품을 검색한다.")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
     public String searchProduct(@RequestParam(value = "query") String query,
-                                @RequestParam(value = "display", defaultValue = "10") int display) {
-        return productSearchAndCrawlingService.searchProduct(query, display);
+                                @RequestParam(value = "display", defaultValue = "10") int display,
+                                @RequestParam(value = "start", defaultValue = "1") int start) {
+        return productSearchAndCrawlingService.searchProduct(query, display, start);
     }
 
     // 인기 상품 조회
