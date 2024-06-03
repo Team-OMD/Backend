@@ -33,9 +33,9 @@ public class ProductSearchAndCrawlingService {
     private String clientSecret;
 
     @CircuitBreaker(name = "searchProductCircuitBreaker", fallbackMethod = "fallback")
-    public String searchProduct(String query, int display) {
+    public String searchProduct(String query, int display, int start) {
         String text = URLEncoder.encode(query, StandardCharsets.UTF_8);
-        String apiURL = "https://openapi.naver.com/v1/search/shop.json?query=" + text + "&display=" + display;
+        String apiURL = "https://openapi.naver.com/v1/search/shop.json?query=" + text + "&display=" + display + "&start=" + start;
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(apiURL))
