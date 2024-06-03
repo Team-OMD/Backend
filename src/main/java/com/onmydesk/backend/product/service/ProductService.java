@@ -14,6 +14,8 @@ import com.onmydesk.backend.product.domain.Page;
 import com.onmydesk.backend.wish.domain.Wish;
 import com.onmydesk.backend.wish.repository.WishRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -37,6 +39,7 @@ public class ProductService {
     private final PageMapper pageMapper;
 
     // 상품 목록 조회
+    @Cacheable(value = "products", key = "#page + '-' + #limit + '-' + #criteria")
     public List<ProductResponse> getList(Integer page, Integer limit, Integer criteria) {
         String sortProperty = switch (criteria) {
             case 1 -> "postCount";
@@ -100,6 +103,7 @@ public class ProductService {
 
     // 상품 저장
     @Transactional
+    @CacheEvict(value = "products", allEntries = true)
     public Product saveProduct(ProductRequest productRequest) {
         // 기존에 동일한 productCode를 가진 상품이 있는지 확인
         Optional<Product> existingProduct = productRepository.findByProductCode(productRequest.getProductCode());
