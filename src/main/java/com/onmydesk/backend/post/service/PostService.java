@@ -25,6 +25,8 @@ import com.onmydesk.backend.product.service.ProductService;
 import com.onmydesk.backend.s3.domain.Image;
 import com.onmydesk.backend.s3.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +56,7 @@ public class PostService {
 
     // 게시글 생성
     @Transactional
+    @CacheEvict(value = "posts", allEntries = true)
     public Post savePost(PostRequest request) {
         Member member = memberService.getMember();
         Post post = postRepository.save(postMapper.toPostEntity(request, member));
@@ -84,6 +87,7 @@ public class PostService {
 
     // 게시글 목록 조회
     @Transactional(readOnly = true)
+    @Cacheable(value = "posts", key = "#page + '-' + #limit + '-' + #criteria")
     public List<PostPreviewResponse> list(Integer page, Integer limit, Integer criteria) {
         String sortProperty = switch (criteria) {
             case 1 -> "createdAt";
@@ -156,6 +160,7 @@ public class PostService {
 
     // 게시글 업데이트
     @Transactional
+    @CacheEvict(value = "posts", allEntries = true)
     public PostResponse update(Long postId, PostRequest request) {
         Member member = memberService.getMember();
         Post post = postValidator.validatePostOwnership(postId, member);
