@@ -73,14 +73,16 @@ public class S3Uploader {
         return Optional.empty();
     }
 
-    // 이미지를 리사이징하는 메소드
+    // 이미지를 리사이징하고 JPEG 형식으로 저장하는 메소드
     private File resizeImage(File imageFile) throws IOException {
-        BufferedImage resizedImage = Thumbnails.of(imageFile) // Thumbnailator 라이브러리 사용
+        BufferedImage resizedImage = Thumbnails.of(imageFile)
                 .size(512, 512)
+                .outputFormat("jpg") // 출력 포맷을 JPEG로 설정
                 .asBufferedImage();
-        File tempFile = new File(imageFile.getParent(), "resized_" + System.currentTimeMillis() + ".png");
-        ImageIO.write(resizedImage, "png", tempFile);
+        File tempFile = new File(imageFile.getParent(), "resized_" + System.currentTimeMillis() + ".jpg");
+        ImageIO.write(resizedImage, "jpg", tempFile);
         return tempFile;
     }
+
 
 }
