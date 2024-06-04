@@ -1,16 +1,21 @@
 package com.onmydesk.backend.post.service;
 
 import com.onmydesk.backend.config.redis.RedisUtil;
+import com.onmydesk.backend.post.domain.Post;
 import com.onmydesk.backend.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class ViewCountService {
 
+    private final PostRepository postRepository;
     private final RedisUtil redisUtil;
 
     public int updateViewCount(Long postId, String clientIp) {
@@ -40,5 +45,31 @@ public class ViewCountService {
         }
 
         return views;
+    }
+
+    @Scheduled(fixedRate = 5 * 60 * 1000)
+    @Transactional
+    public void syncViewCountsToDatabase() {
+
+        Set<String> keys = redisUtil.getKeysByPattern("post::viewCount::*");
+
+        for (String key : keys) {
+            Long postId = Long.parseLong(key.split("::")[2]);
+            String viewCountStr = redisUtil.getValues(key);
+            int viewCount = 0;
+            try {
+                viewCount = Integer.parseInt(viewCountStr);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid view count format in Redis for key " + key + ": " + viewCountStr);
+            }
+
+            if (viewCount > 0) {
+                Post post = postRepository.findById(postId).orElse(null);
+                if (post != null) {
+                    postRepository.addViewCount(post, viewCount); // 조회수를 한 번에 추가
+                }
+                redisUtil.deleteValues(key);
+            }
+        }
     }
 }
