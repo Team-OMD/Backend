@@ -10,6 +10,7 @@ import com.onmydesk.backend.global.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,8 +54,9 @@ public class PostController {
     @GetMapping("/posts/{postId}")
     @Operation(summary = "게시글 상세 조회", description = "게시글 상세 정보를 조회한다.")
     @ApiResponses(value = @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "성공"))
-    public ResponseEntity<?> getPost(@PathVariable("postId") Long postId) {
-        PostAndProductResponse postAndProductResponse = postService.find(postId);
+    public ResponseEntity<?> getPost(@PathVariable("postId") Long postId, HttpServletRequest request) {
+        String clientIp = getClientIp(request);
+        PostAndProductResponse postAndProductResponse = postService.getPost(postId, clientIp);
         return apiResponse.success("게시글 상세 조회 성공", postAndProductResponse, HttpStatus.OK);
     }
 
@@ -84,5 +86,17 @@ public class PostController {
     public ResponseEntity<?> getPopularPosts( ){
         List<PostPreviewResponse> postResponses = popularPost.getList();
         return apiResponse.success("인기글 조회 성공", postResponses, HttpStatus.OK);
+    }
+
+    // 사용자 IP 조회
+    private String getClientIp(HttpServletRequest request) {
+        String clientIp = request.getHeader("X-Forwarded-For");
+        if (clientIp == null || clientIp.isEmpty()) {
+            clientIp = request.getRemoteAddr();
+        } else {
+            // X-Forwarded-For 헤더에 여러 IP가 있을 경우 첫 번째 IP를 사용
+            clientIp = clientIp.split(",")[0].trim();
+        }
+        return clientIp;
     }
 }

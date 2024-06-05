@@ -52,6 +52,7 @@ public class PostService {
     private final ProductRepository productRepository;
     private final PostProductRepository postProductRepository;
     private final ImageRepository imageRepository;
+    private final ViewCountService viewCountService;
 
 
     // 게시글 생성
@@ -120,10 +121,11 @@ public class PostService {
 
     // 게시글 단일 조회
     @Transactional
-    public PostAndProductResponse find(Long postId) {
+    public PostAndProductResponse getPost(Long postId, String clientIp) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RestApiException(PostErrorCode.POST_NOT_FOUND));
-        postRepository.addViewCount(post);
+
+        viewCountService.updateViewCount(postId, clientIp);
 
         List<PostProduct> postProducts = postProductRepository.findByPostId(postId);
 
@@ -139,8 +141,6 @@ public class PostService {
             Member member = memberService.getMember();
             boolean isLiked = heartRepository.findByMemberAndPost(member, post).isPresent();
             PostResponse postResponse = postMapper.toResponse(post, isLiked);
-
-
 
             return PostAndProductResponse.builder()
                     .post(postResponse)

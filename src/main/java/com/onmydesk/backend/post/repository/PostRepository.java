@@ -30,8 +30,8 @@ public interface PostRepository extends JpaRepository<Post, Long>{
 
     @Modifying
     @Transactional
-    @Query("update Post p set p.viewCount = p.viewCount + 1 where p = :post")
-    void addViewCount(Post post);
+    @Query("update Post p set p.viewCount = p.viewCount + :count where p = :post")
+    void addViewCount(Post post, int count);
 
     @EntityGraph(attributePaths = {"thumbnailImage"})
     Post findByHeart(Heart heart);

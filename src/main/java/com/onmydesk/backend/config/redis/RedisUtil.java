@@ -1,14 +1,13 @@
 package com.onmydesk.backend.config.redis;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -40,8 +39,27 @@ public class RedisUtil {
         redisTemplate.delete(key);
     }
 
-    public void expireValues(String key, int timeout) {
-        redisTemplate.expire(key, timeout, TimeUnit.MILLISECONDS);
+    public void expireValues(String key, int timeout, TimeUnit unit) {
+        redisTemplate.expire(key, timeout, unit);
+    }
+
+    public void addToSet(String key, String value) {
+        SetOperations<String, Object> setOps = redisTemplate.opsForSet();
+        setOps.add(key, value);
+    }
+
+    public boolean isMemberOfSet(String key, String value) {
+        SetOperations<String, Object> setOps = redisTemplate.opsForSet();
+        return Boolean.TRUE.equals(setOps.isMember(key, value));
+    }
+
+    public Set<Object> getSetMembers(String key) {
+        SetOperations<String, Object> setOps = redisTemplate.opsForSet();
+        return setOps.members(key);
+    }
+
+    public Set<String> getKeysByPattern(String pattern) {
+        return redisTemplate.keys(pattern);
     }
 
     public void setHashOps(String key, Map<String, String> data) {
