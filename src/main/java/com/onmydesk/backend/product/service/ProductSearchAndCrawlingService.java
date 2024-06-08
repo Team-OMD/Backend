@@ -5,7 +5,9 @@ import com.onmydesk.backend.error.errorcode.ProductErrorCode;
 import com.onmydesk.backend.error.exception.RestApiException;
 import com.onmydesk.backend.product.domain.Page;
 import com.onmydesk.backend.product.domain.Product;
+import com.onmydesk.backend.product.repository.PageRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class ProductSearchAndCrawlingService {
 
@@ -31,6 +34,8 @@ public class ProductSearchAndCrawlingService {
 
     @Value("${naver.api.client.secret}")
     private String clientSecret;
+
+    private final PageRepository pageRepository;
 
     @CircuitBreaker(name = "searchProductCircuitBreaker", fallbackMethod = "fallback")
     public String searchProduct(String query, int display, int start) {
@@ -92,7 +97,7 @@ public class ProductSearchAndCrawlingService {
         }
     }
 
-    public String fallback(String query, int display, Throwable t) {
+    public String fallback(String query, int display, int start, Throwable t) {
         return "Fallback! exception type: " + t.getClass() + ", message: " + t.getMessage();
     }
 
@@ -100,6 +105,12 @@ public class ProductSearchAndCrawlingService {
         try {
             // 상품 요청 DTO로부터 productCode를 가져옴
             String id = product.getProductCode();
+
+            // 기존의 페이지 데이터가 있다면 삭제
+            List<Page> existingPages = pageRepository.findByProductId(product.getId());
+            if (!existingPages.isEmpty()) {
+                pageRepository.deleteAll(existingPages);
+            }
 
             // 상품 페이지 URL 생성
             String modifiedLink = "https://search.shopping.naver.com/catalog/" + id;
